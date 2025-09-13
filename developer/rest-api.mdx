@@ -1,0 +1,21 @@
+---
+title: 'REST API'
+icon: 'code-merge'
+---
+
+TeraWallet registers several REST API endpoints under `/wp-json/woo-wallet/v1/`.
+
+## Authentication
+- Requires **WooCommerce REST API authentication** (consumer key/secret or application password).  
+
+## Endpoints
+
+### Get Balance
+`GET /wp-json/woo-wallet/v1/balance/{user_id}`
+
+**Response**
+```json
+{
+  "user_id": 123,
+  "balance": "250.00"
+}

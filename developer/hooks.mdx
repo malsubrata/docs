@@ -1,0 +1,23 @@
+---
+title: 'Hooks'
+icon: 'plug'
+---
+
+This page lists important **actions and filters** provided by TeraWallet.
+
+| Hook | Type | Description |
+|------|------|-------------|
+| `woo_wallet_before_transaction` | Action | Fires before a wallet transaction is created. |
+| `woo_wallet_after_transaction` | Action | Fires after a wallet transaction is recorded. |
+| `woo_wallet_cashback_amount` | Filter | Modify cashback amount before crediting wallet. |
+| `woo_wallet_partial_payment_enabled` | Filter | Enable/disable partial payments dynamically. |
+
+👉 Example usage:
+```php
+add_filter('woo_wallet_cashback_amount', function($amount, $order_id) {
+    // Double cashback for VIP users
+    if (user_is_vip(get_current_user_id())) {
+        return $amount * 2;
+    }
+    return $amount;
+}, 10, 2);
