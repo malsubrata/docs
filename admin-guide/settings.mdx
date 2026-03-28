@@ -1,0 +1,52 @@
+---
+title: "Admin Settings Overview"
+description: "A detailed guide to the TeraWallet configuration options in your WordPress admin."
+---
+
+The TeraWallet settings are divided into multiple tabs, each controlling specific aspects of the wallet behavior. Navigate to **TeraWallet** > **Settings** to access these options.
+
+### General Settings
+
+This tab controls the fundamental behavior of the wallet system.
+
+- **Enable Partial Payment**: When active, customers can use their wallet balance for a portion of the total order.
+- **Is auto deduct for partial payment**: Automatically applies the customer's wallet balance as a discount if partial payment is enabled.
+- **Enable Wallet Transfer**: Allow users to transfer funds to other registered customers using their email address.
+- **Transfer Charge**: Optionally set a fixed or percentage-based charge for each fund transfer.
+- **Enable Wallet Topup**: Allow customers to add funds manually via their account dashboard.
+- **Minimum/Maximum Topup Amount**: Restrict the amount a customer can add to their wallet in a single transaction.
+
+### Credit/Cashback Settings
+
+Configure how rewards are credited to users' wallets.
+
+- **Cashback Rule**: Choose the calculation scope:
+  - **Cart Wise**: Cashback based on the total cart value.
+  - **Product Wise**: Cashback based on specific product settings.
+  - **Product Category Wise**: Cashback based on the product category rules.
+- **Cashback Type**: Select **Percentage** or **Fixed Amount**.
+- **Cashback Amount**: The default value for the reward.
+- **Max Cashback Amount**: Caps the total reward per order to a specific limit.
+- **Min Cart Amount for Cashback**: The minimum total an order must reach to qualify for any cashback.
+- **Exclude Role from Cashback**: Select user roles (e.g., Administrator, Vendor) that should not receive rewards.
+- **Process Cashback Status**: Define which WooCommerce order statuses trigger the reward (e.g., Completed, Processing).
+
+### Gateway Settings
+
+TeraWallet acts as a WooCommerce gateway. Here, you can control its visibility and fees.
+
+- **Title/Description**: Customize what customers see at checkout.
+- **Payment Method Visibility**: Hide the wallet gateway if the balance is zero or if specific products are in the cart.
+- **Gateway Charges**: Apply extra fees when customers use certain gateways to top up their wallets.
+
+### Actions Settings
+
+Incentivize user engagement by rewarding specific site actions:
+
+- **New User Registration**: Credit a specific amount to new users upon signing up.
+- **Daily Visit**: Reward users for logging in once per day.
+- **Product Review**: Credit users for leaving verified reviews on your products.
+
+<Tip>
+  When configuring rewards for actions like registrations or reviews, ensure you have set limits to prevent abuse (e.g., limit daily visit rewards to once per 24 hours).
+</Tip>

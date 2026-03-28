@@ -1,0 +1,81 @@
+---
+title: "REST API Reference (v3)"
+description: "Documentation for the TeraWallet REST API endpoints."
+---
+
+TeraWallet extends the WooCommerce REST API under the `wc/v3/wallet` namespace. This allows developers to interact with the wallet system programmatically from external applications.
+
+### Authentication
+
+TeraWallet uses standard WooCommerce REST API authentication. You must provide a **Consumer Key** and **Consumer Secret** with the appropriate permissions.
+
+### Endpoints
+
+#### Get User Balance
+Retrieve the current wallet balance for a specific user.
+
+- **URL**: `GET /wp-json/wc/v3/wallet/balance`
+- **Parameters**: 
+  - `email` (string): The email address of the user.
+- **Example Request**:
+  `GET https://example.com/wp-json/wc/v3/wallet/balance?email=customer@example.com`
+- **Response**:
+```json
+{
+  "balance": "250.00",
+  "currency": "USD"
+}
+```
+
+#### Get Transaction History
+Retrieve a list of ledger entries for a specific user.
+
+- **URL**: `GET /wp-json/wc/v3/wallet`
+- **Parameters**: 
+  - `email` (string): The email address of the user.
+- **Example Request**:
+  `GET https://example.com/wp-json/wc/v3/wallet?email=customer@example.com`
+- **Response**:
+```json
+[
+  {
+    "transaction_id": "101",
+    "type": "credit",
+    "amount": "50.00",
+    "balance": "250.00",
+    "details": "Cashback for Order #1234",
+    "date": "2024-03-28 10:00:00"
+  },
+  {
+    "transaction_id": "100",
+    "type": "debit",
+    "amount": "20.00",
+    "balance": "200.00",
+    "details": "For order payment #1233",
+    "date": "2024-03-27 15:30:00"
+  }
+]
+```
+
+#### Create Manual Transaction (Admin Only)
+Manually credit or debit a user's wallet balance.
+
+- **URL**: `POST /wp-json/wc/v3/wallet`
+- **Request Body**:
+  - `email` (string): The recipient's email.
+  - `type` (string): `credit` or `debit`.
+  - `amount` (float): The amount to adjust.
+  - `details` (string): A description for the ledger entry.
+- **Example Request**:
+```json
+{
+  "email": "customer@example.com",
+  "type": "credit",
+  "amount": "10.00",
+  "details": "Correction by Admin"
+}
+```
+
+<Info>
+  All API responses are returned in JSON format. Ensure your request headers include `Content-Type: application/json`.
+</Info>

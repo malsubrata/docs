@@ -1,0 +1,54 @@
+---
+title: "Transaction & Ledger Management"
+description: "How to manage user wallet balances and audit the transaction ledger."
+---
+
+TeraWallet provides a comprehensive transaction management system to view, audit, and manually adjust customer balances.
+
+### Auditing the Ledger
+
+Navigate to **TeraWallet** to view every balance modification recorded by the system. The ledger provides a detailed history, including:
+
+- **User**: The customer associated with the transaction.
+- **Type**: Indicates whether it was a **Credit** (funds added) or **Debit** (funds removed).
+- **Amount**: The transaction value.
+- **Balance**: The user's total balance *after* the transaction was recorded.
+- **Details**: A system-generated or admin-provided description (e.g., "Cashback for Order #123" or "Manual credit by Admin").
+- **Date**: The timestamp of the transaction.
+
+### Manual Credit/Debit
+
+As an administrator, you can manually adjust a user's wallet balance.
+
+1. Go to **TeraWallet**.
+2. Select the **Customer** by searching for their username or email.
+3. Hover over the user and click **Edit Balance** to access edit transaction popup window.
+4. Choose the **Transaction Type** (Credit or Debit).
+5. Enter the **Amount**.
+6. Provide a **Description** for the ledger entry.
+7. Click **Save** to apply the changes and update the user's balance.
+
+### User Balance Management
+
+To view all customer balances in one place:
+
+1. Navigate to **TeraWallet**.
+2. This screen shows a list of all registered users and their current wallet balance.
+3. You can quickly search for a specific user to check their available funds.
+4. From this screen, you can  click on any user to view user's transaction history.
+
+### Locking User Accounts
+
+In cases of suspected fraud or dispute, you can lock a user's wallet account:
+
+1. Edit the user profile under **Users** > **All Users**.
+2. Find the **Wallet Management** section.
+3. Check the **Lock Wallet** box.
+4. While locked, the user cannot:
+   - Use their wallet balance at checkout.
+   - Top up their wallet.
+   - Receive or send transfers.
+
+<Warning>
+  Manual adjustments to the ledger should be done carefully, as they are recorded permanently in the audit trail. Always provide a clear description for future reference.
+</Warning>

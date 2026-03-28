@@ -1,78 +1,73 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Developer Documentation - TeraWallet",
-  "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+  "name": "TeraWallet Documentation",
+  "logo": {
+    "light": "/logo/logo.png",
+    "dark": "/logo/logo.png"
   },
   "favicon": "/favicon.ico",
+  "colors": {
+    "primary": "#16A34A",
+    "light": "#4ade80",
+    "dark": "#15803d"
+  },
+  "topbarLinks": [
+    {
+      "name": "Support",
+      "url": "https://standalonetech.com/support"
+    }
+  ],
   "navigation": {
     "tabs": [
       {
         "tab": "Core",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Getting Started",
             "pages": [
               "index",
-              "installation"
+              "getting-started/installation",
+              "getting-started/configuration"
             ]
           },
           {
-            "group": "Admin guides",
+            "group": "Admin Guide",
             "pages": [
-              "admin/overview"
+              "admin-guide/settings",
+              "admin-guide/transactions"
             ]
           },
           {
-            "group": "Frontend guides",
+            "group": "User Guide",
             "pages": [
-              "frontend/overview"
+              "user-guide/wallet-dashboard",
+              "user-guide/partial-payments"
             ]
           },
           {
-            "group": "Developer guides",
+            "group": "Cashback System",
             "pages": [
-              "developer/hooks",
-              "developer/rest-api",
-              "developer/templates"
+              "cashback/rules-logic"
+            ]
+          },
+          {
+            "group": "Developer Guide",
+            "pages": [
+              "developer-guide/architecture",
+              "developer-guide/hooks",
+              "developer-guide/rest-api"
+            ]
+          },
+          {
+            "group": "FAQ & Troubleshooting",
+            "pages": [
+              "faq/troubleshooting"
             ]
           }
         ]
       }
     ]
-  },
-  "logo": {
-    "light": "/logo/logo.png",
-    "dark": "/logo/logo.png"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "icon": "envelope",
-        "href": "mailto:support@standalonetech.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Download Now",
-      "href": "https://downloads.wordpress.org/plugin/woo-wallet.zip"
-    }
-  },
-  "contextual": {
-    "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
   },
   "footer": {
     "socials": {

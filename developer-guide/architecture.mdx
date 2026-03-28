@@ -1,0 +1,54 @@
+---
+title: "Plugin Architecture & Internals"
+description: "A deep dive into how TeraWallet works under the hood for developers."
+---
+
+TeraWallet is built with a modular, object-oriented approach that prioritizes data integrity and extensibility.
+
+### Core Architecture
+
+- **Database-First Ledger**: Unlike many WordPress plugins that rely solely on user meta, TeraWallet uses a custom database table for all transaction records. This ensures that the wallet balance is always auditable and accurate.
+- **MySQL Locking Mechanism**: To prevent race conditions during concurrent transactions (e.g., multiple simultaneous API calls or AJAX requests), TeraWallet employs **MySQL-level locking** (`GET_LOCK`) when performing credit or debit operations.
+- **Singleton Lifecycle**: The main `Woo_Wallet` class (in `class-woo-wallet.php`) uses a singleton pattern to manage sub-modules like the Wallet, Cashback, API, and Settings.
+
+### Folder Structure
+
+- `/includes/`: The core PHP logic of the plugin.
+  - `class-woo-wallet-wallet.php`: Contains the `credit()`, `debit()`, and balance calculation logic.
+  - `class-woo-wallet-cashback.php`: Handles all reward calculations and rules.
+  - `class-woo-wallet-payment-method.php`: Implements the `WC_Payment_Gateway` for WooCommerce.
+  - `/actions/`: Modular classes for site-wide rewards (e.g., new registrations, daily visits).
+  - `/api/`: Controllers for the REST API integration.
+- `/templates/`: Overridable UI components for the frontend dashboard and checkout.
+- `/src/`: JavaScript (React/ES6) and SCSS source files for the admin and frontend interfaces.
+- `/assets/`: Compiled CSS, JS, and image assets.
+
+### Custom Database Tables
+
+TeraWallet creates two primary tables during installation:
+
+- `wp_woo_wallet_transactions`:
+  - `transaction_id`: Primary Key (BIGINT).
+  - `user_id`: The user associated with the transaction.
+  - `type`: Either `credit` or `debit`.
+  - `amount`: The transaction value.
+  - `balance`: The calculated balance *after* the transaction.
+  - `currency`: The currency code used.
+  - `details`: A detailed description of the entry.
+- `wp_woo_wallet_transaction_meta`:
+  - Stores additional metadata for each transaction (e.g., associated order ID, cashback type).
+
+### Core Transaction Flow
+
+1. **Initiation**: A module calls `woo_wallet()->wallet->credit()` or `debit()`.
+2. **Locking**: The system acquires a MySQL lock for the specific user.
+3. **Calculation**: It fetches the most recent balance from the ledger.
+4. **Validation**: For debits, it ensures the user has sufficient funds (unless negative transactions are allowed via filter).
+5. **Recording**: A new entry is inserted into the `transactions` table.
+6. **Syncing**: The `_current_woo_wallet_balance` user meta key is updated for fast read access.
+7. **Hooks**: Actions like `woo_wallet_transaction_recorded` are fired.
+8. **Release**: The MySQL lock is released.
+
+<Info>
+  The `_current_woo_wallet_balance` user meta is essentially a cache of the value in the ledger. Always use the `get_wallet_balance()` method to ensure accuracy.
+</Info>

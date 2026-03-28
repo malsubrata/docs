@@ -1,0 +1,50 @@
+---
+title: "Partial & Combined Payments"
+description: "How to use wallet balance along with other payment methods at checkout."
+---
+
+Partial payment is a powerful feature that allows customers to use their existing wallet balance to pay for part of an order, while paying the remainder with another gateway (e.g., Stripe, PayPal, or Bank Transfer).
+
+### How It Works
+
+When partial payment is enabled, TeraWallet calculates the available balance and applies it as a **negative fee** to the WooCommerce cart. This effectively reduces the "Total" that needs to be collected by other payment methods.
+
+### Checkout Flow Example
+
+Here is a step-by-step example of how a partial payment transaction works:
+
+1. **User Balance**: The customer has **₹100** in their wallet.
+2. **Cart Total**: The customer adds items worth **₹300** to their cart.
+3. **Applying Balance**: On the checkout page, the user chooses to use their wallet balance.
+4. **Calculated Totals**:
+   - Subtotal: ₹300
+   - **Wallet Deduction (Via Wallet): -₹100**
+   - **New Total to Pay: ₹200**
+5. **Final Payment**: The customer pays the remaining **₹200** using their preferred gateway (e.g., Credit Card).
+6. **Post-Payment**:
+   - WooCommerce marks the order as paid.
+   - TeraWallet debits ₹100 from the customer's wallet ledger.
+   - The ledger entry will show: "For order payment #1234 (Partial)".
+
+### Auto-Deduct Feature
+
+Administrators can enable **Auto-Deduct** in the settings. When active:
+- The maximum available wallet balance is **automatically applied** as a discount when the customer reaches the checkout page.
+- The customer doesn't need to manually toggle the option.
+
+### Refund Logic for Partial Payments
+
+If an order paid partially is cancelled or refunded:
+- TeraWallet identifies the amount that was paid via the wallet.
+- That specific amount is automatically credited back to the customer's wallet.
+- The remaining amount (paid via the secondary gateway) must be handled separately by the administrator within the gateway's refund interface.
+
+### Important Notes
+
+- **Insufficient Balance**: If the wallet balance is zero, the partial payment option will not appear.
+- **Full Payment**: If the wallet balance is *greater than or equal to* the order total, the user can pay for the entire order using the **Wallet Gateway** directly, and no other payment method is required.
+- **Top-up Conflict**: Partial payments **cannot be used** if the customer is currently attempting to buy a "Wallet Topup" product.
+
+<Info>
+  Partial payments are implemented as a non-taxable negative fee in WooCommerce, ensuring that tax calculations on the remaining items are not affected.
+</Info>

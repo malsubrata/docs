@@ -1,22 +1,61 @@
 ---
-title: 'Overview'
+title: "TeraWallet (WooWallet) Documentation"
+description: "The official developer and user documentation for the leading WooCommerce wallet system."
 ---
-# TeraWallet (Wallet for WooCommerce)
 
-TeraWallet is a WooCommerce wallet and credit system that allows customers to **add funds, make partial payments, transfer money, and earn cashback** directly within your store.
+<img
+  className="block"
+  src="/images/hero.png"
+  alt="Hero Light"
+/>
 
-## ✨ Features
-- Wallet payment gateway for WooCommerce checkout  
-- Add funds via standard WooCommerce payment methods  
-- Cashback rewards per product, category, or global rule  
-- Refunds directly to wallet balance  
-- Peer-to-peer wallet transfers  
-- Partial payments (combine wallet + another payment method)  
-- REST API support  
-- Multisite & WPML support  
+TeraWallet is a powerful, digital wallet system for WooCommerce that allows customers to store funds, earn rewards through various site activities, and use their balance for fast, secure checkouts.
 
-## ⚙️ Minimum Requirements
-- PHP 7.4 or newer (8.0+ recommended)  
-- WordPress 6.0 or newer  
-- WooCommerce 7.2 or newer  
+### Core Features
 
+<CardGroup cols={2}>
+  <Card
+    title="Digital Ledger"
+    icon="ledger"
+    href="/admin-guide/transactions"
+  >
+    Secure transaction history with atomic credits and debits for every user.
+  </Card>
+  <Card
+    title="Cashback Engine"
+    icon="gift"
+    href="/cashback/rules-logic"
+  >
+    Reward customers based on cart total, product categories, or specific products.
+  </Card>
+  <Card
+    title="Partial Payments"
+    icon="credit-card"
+    href="/user-guide/partial-payments"
+  >
+    Allow customers to combine wallet funds with other payment gateways at checkout.
+  </Card>
+  <Card
+    title="Developer Friendly"
+    icon="code"
+    href="/developer-guide/architecture"
+  >
+    Extensible architecture with a rich set of actions and filters for deep integration.
+  </Card>
+</CardGroup>
+
+### Navigation
+
+To get started with TeraWallet, choose the guide most relevant to your role:
+
+- **[Administrators](/admin-guide/settings)**: Learn how to configure rules, manage user balances, and audit transactions.
+- **[Customers](/user-guide/wallet-dashboard)**: Understand how to top up, transfer, and pay with your wallet.
+- **[Developers](/developer-guide/architecture)**: Dive into the plugin internals, hooks reference, and REST API endpoints.
+
+### Quick Links
+
+<CardGroup cols={3}>
+  <Card title="Installation" icon="download" href="/getting-started/installation" />
+  <Card title="Rest API" icon="webhook" href="/developer-guide/rest-api" />
+  <Card title="Troubleshooting" icon="bug" href="/faq/troubleshooting" />
+</CardGroup>

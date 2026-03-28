@@ -1,0 +1,76 @@
+---
+title: "Hooks Reference (Actions & Filters)"
+description: "A comprehensive guide to extending TeraWallet using WordPress hooks."
+---
+
+TeraWallet is highly extensible, offering numerous actions and filters to customize its behavior.
+
+### Essential Filters
+
+#### `woo_wallet_current_balance`
+Modify the current wallet balance before it is returned.
+- **Parameters**: `(float) $balance`, `(int) $user_id`.
+- **Example**: Add a temporary 5% bonus to all balance displays.
+```php
+add_filter( 'woo_wallet_current_balance', function( $balance, $user_id ) {
+    return $balance * 1.05;
+}, 10, 2 );
+```
+
+#### `woo_wallet_payment_is_available`
+Programmatically toggle the wallet payment gateway visibility.
+- **Parameters**: `(bool) $is_available`.
+- **Example**: Disable wallet payment for a specific product category.
+
+#### `woo_wallet_cashback_amount`
+Adjust the calculated cashback amount before it's stored.
+- **Parameters**: `(float) $cashback_amount`, `(int) $order_id`.
+
+#### `woo_wallet_disallow_negative_transaction`
+Allow or disallow negative transactions for specific scenarios.
+- **Parameters**: `(bool) $disallow`, `(float) $amount`, `(float) $balance`.
+- **Example**: Allow a "Credit Limit" for trusted users.
+```php
+add_filter( 'woo_wallet_disallow_negative_transaction', function( $disallow, $amount, $balance ) {
+    if ( current_user_can( 'manage_options' ) ) {
+        return false; // Allow admins to go negative
+    }
+    return $disallow;
+}, 10, 3 );
+```
+
+### Essential Actions
+
+#### `woo_wallet_transaction_recorded`
+Fires after any successful credit or debit to the ledger.
+- **Parameters**: `(int) $transaction_id`, `(int) $user_id`, `(float) $amount`, `(string) $type`.
+- **Example**: Send a custom SMS notification when balance is updated.
+
+#### `woo_wallet_payment_processed`
+Fires after a successful wallet purchase.
+- **Parameters**: `(int) $order_id`, `(int) $transaction_id`.
+
+#### `woo_wallet_admin_adjust_balance`
+Fires when an administrator manually edits a user's balance.
+- **Parameters**: `(int) $user_id`, `(float) $amount`, `(string) $payment_type`.
+
+#### `woo_wallet_credit_purchase_completed`
+Fires when a customer completes a "Wallet Topup" order.
+- **Parameters**: `(int) $transaction_id`, `(object) $order`.
+
+### Customizing Partial Payments
+
+#### `woo_wallet_partial_payment_amount`
+Modify the amount applied as a partial payment.
+- **Parameters**: `(float) $amount`.
+- **Example**: Always cap partial payments to 50% of the total order.
+```php
+add_filter( 'woo_wallet_partial_payment_amount', function( $amount ) {
+    $cart_total = WC()->cart->get_total('edit');
+    return min( $amount, $cart_total / 2 );
+} );
+```
+
+<Tip>
+  When using hooks that modify balance or payment eligibility, always test with a non-admin user to ensure correct front-end behavior.
+</Tip>

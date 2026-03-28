@@ -1,0 +1,48 @@
+---
+title: "Customer Wallet Dashboard"
+description: "How customers can manage their balance, view history, and perform transfers."
+---
+
+Customers can manage their wallet balance directly from their WooCommerce account page. TeraWallet seamlessly integrates a "My Wallet" tab into the customer dashboard.
+
+### Viewing Balance & Transactions
+
+Customers can navigate to **My Account** > **My Wallet** to:
+
+- **Check Current Balance**: The total available funds are displayed prominently.
+- **View Transaction History**: A detailed table showing every credit and debit, along with dates and descriptions.
+- **Filter History**: Customers can use date range filters to audit their transaction history.
+
+### Adding Funds (Top-up)
+
+If the administrator has enabled top-ups, customers can add funds manually:
+
+1. Go to the **My Wallet** tab.
+2. Navigate to the **Top-up** sub-tab.
+3. Enter the amount you wish to add.
+4. Click **Add Balance**.
+5. You will be redirected to the WooCommerce checkout page.
+6. Complete the payment using any available gateway (e.g., Credit Card, PayPal).
+7. Once the payment is processed, the funds are instantly credited to your wallet.
+
+### Sending Funds (Transfer)
+
+Customers can send funds to other registered users if transfers are enabled:
+
+1. Navigate to the **Transfer** sub-tab within **My Wallet**.
+2. Enter the recipient's **email address** (the email must be associated with a registered account on the site).
+3. Specify the **amount** you want to send.
+4. Add an optional **note** for the recipient.
+5. Click **Transfer Now**.
+6. The amount is instantly debited from your wallet and credited to the recipient's ledger.
+
+### Shortcodes
+
+You can display wallet information anywhere on your site using these shortcodes:
+
+- `[woo-wallet]`: Displays the full wallet dashboard (recommended for a dedicated "My Wallet" page).
+- `[mini-wallet]`: Shows a simple widget with the user's current balance, ideal for headers or sidebars.
+
+<Tip>
+  If you're using a page builder like Elementor or Gutenberg, you can insert the `[mini-wallet]` shortcode into your navigation menu for a personalized user experience.
+</Tip>

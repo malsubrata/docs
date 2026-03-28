@@ -1,0 +1,38 @@
+---
+title: "Initial Configuration"
+description: "Setting up TeraWallet for the first time."
+---
+
+After activating the TeraWallet plugin, you need to configure it to suit your store's requirements.
+
+### Accessing Settings
+
+Navigate to **TeraWallet** > **Settings** in your WordPress dashboard to access all configuration options.
+
+### General Setup
+
+In the **General** tab, you can manage core features:
+
+- **Enable Partial Payment**: When enabled, customers can use their wallet balance to pay for part of an order and use another payment method for the remainder.
+- **Enable Wallet Transfer**: Allow customers to send wallet balance to other registered users.
+- **Top-up Minimum/Maximum**: Set limits for how much a customer can add to their wallet at once.
+
+### Required WooCommerce Settings
+
+To ensure the wallet functions correctly as a payment method:
+
+1. Go to **WooCommerce** > **Settings** > **Payments**.
+2. Locate **TeraWallet** in the list of payment methods.
+3. Toggle the switch to **Enable** it.
+4. Click **Finish set up** to customize the title and description seen by customers at checkout.
+
+### Wallet Recharge Product
+
+TeraWallet automatically creates a hidden "Wallet Topup" product used for adding funds.
+- **Do not delete** this product.
+- The product is set as **Virtual** and **Private** so it doesn't appear in your shop catalog.
+- You can find it under **Products** > **All Products** if you need to troubleshoot top-up issues.
+
+<Warning>
+  If you delete the "Wallet Topup" product, customers will not be able to add funds to their wallet. The plugin will attempt to recreate it upon the next activation.
+</Warning>

@@ -1,0 +1,43 @@
+---
+title: "Troubleshooting & FAQ"
+description: "Common issues and solutions for TeraWallet."
+---
+
+### Common Issues
+
+#### Wallet Payment Method is Not Visible at Checkout
+If the "Wallet" payment method doesn't appear for customers:
+1. **Low Balance**: The wallet method is hidden by default if the customer's balance is lower than the order total (unless partial payment is enabled).
+2. **Settings**: Go to **WooCommerce** > **Settings** > **Payments** and ensure "TeraWallet" is enabled.
+3. **Guest Checkout**: Wallet payments require a registered account. It will not show for guests unless they log in or create an account.
+4. **Top-up Item**: The wallet gateway is disabled if the customer is purchasing a "Wallet Topup" product.
+
+#### Cashback Not Applying to Orders
+If cashback is not credited after a purchase:
+1. **Order Status**: Check the "Process Cashback Status" in **TeraWallet** > **Settings** > **Credit**. The reward is only credited when the order reaches that specific status (e.g., Completed).
+2. **User Role**: Ensure the customer's role is not in the "Exclude Role" list in settings.
+3. **Product Rule**: If you're using product-wise rules, verify that the individual product has a cashback amount set.
+4. **Rechargeable Order**: Cashback is never awarded for "Wallet Topup" purchases.
+
+#### Partial Payment Option is Missing
+1. **Enable Setting**: Ensure "Enable Partial Payment" is checked in **TeraWallet** > **Settings** > **General**.
+2. **Zero Balance**: The option won't appear if the customer has a ₹0 balance.
+3. **Full Balance**: If the customer has enough balance to cover the *entire* order, they should use the "Wallet" gateway instead of partial payment.
+
+### Frequently Asked Questions
+
+#### Can I delete the "Wallet Topup" product?
+**No**. This product is required for the top-up feature to work. Deleting it will break the ability for customers to add funds. If deleted by mistake, deactivate and reactivate the plugin to recreate it.
+
+#### Does TeraWallet support multi-currency?
+Yes, TeraWallet is compatible with popular multi-currency plugins like **WOOCS** and **WPML Multi-currency**. It records transactions in the site's default currency and handles conversions automatically during checkout.
+
+#### Can I manually edit a user's balance?
+Yes. Go to **TeraWallet** > **Transactions** and click **Add New** to manually credit or debit any user's account.
+
+#### Is there a limit to how much a user can store?
+By default, there is no limit to the maximum balance a user can hold. However, you can set limits on how much they can **top up** in a single transaction in the settings.
+
+<Info>
+  Still having issues? Visit our [Community Support Forum](https://standalonetech.com/forums/forum/terawallet/) or check the WordPress.org support threads.
+</Info>
