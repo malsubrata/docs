@@ -1,0 +1,38 @@
+---
+title: "Wallet Coupons"
+description: "Create coupons that credit the TeraWallet balance instead of discounting the cart, with email/domain restrictions, usage limits and expiry."
+---
+
+Wallet Coupons are a dedicated coupon type that **adds balance to a customer's wallet** when
+redeemed, rather than discounting their order. They're ideal for promotions, gift codes, and
+goodwill credit.
+
+## Creating a wallet coupon
+
+1. Enable the module: in **TeraWallet → Settings**, turn on **Enable Wallet Coupon**.
+2. Create a coupon as you normally would, and mark it as a **Wallet Coupon**.
+3. Set the **value** that will be credited to the wallet on redemption, and the **currency**.
+
+When a customer redeems the code, the coupon value is credited to their wallet balance instead of
+reducing the cart total.
+
+## Restrictions & limits
+
+Each wallet coupon supports the controls you'd expect from WooCommerce coupons:
+
+- **Email / domain restriction** — limit redemption to specific email addresses or whole domains
+  (wildcard supported, e.g. `*@company.com`).
+- **Usage limits** — cap how many times a coupon can be used globally and per individual user.
+- **Expiry date** — set a hard deadline after which the code can no longer be redeemed.
+- **Per-coupon currency** — define the currency the value is credited in.
+
+## Bulk generation
+
+A built-in **bulk generator** creates many unique coupon codes at once (for gift-card campaigns or
+mass distribution). It's backed by the coupon REST API under `terawallet/v1/coupons`, which also
+supports full CRUD and code generation for programmatic workflows — see [Pro Hooks](/pro/hooks).
+
+<Tip>
+  Combine an email-domain restriction with a usage limit of 1-per-user to hand out one-time welcome
+  credit to everyone at a partner company.
+</Tip>

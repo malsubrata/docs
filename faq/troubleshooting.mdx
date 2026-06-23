@@ -21,8 +21,20 @@ If cashback is not credited after a purchase:
 
 #### Partial Payment Option is Missing
 1. **Enable Setting**: Ensure "Enable Partial Payment" is checked in **TeraWallet** > **Settings** > **General**.
-2. **Zero Balance**: The option won't appear if the customer has a ₹0 balance.
+2. **Zero Balance**: The option won't appear if the customer has a \$0 balance.
 3. **Full Balance**: If the customer has enough balance to cover the *entire* order, they should use the "Wallet" gateway instead of partial payment.
+
+#### Tax Stays on the Full Order with Partial Payment
+By default the wallet pays for **goods only**, so tax is still charged on the order — this is correct
+when wallet top-ups are not taxed when loaded. If your top-ups *are* taxed at load and you want the
+wallet to cover tax too, set **Tax treatment** to **Wallet pays the whole order including tax** under
+**Settings → General → Partial Payment**. See [Partial & Combined Payments](/user-guide/partial-payments#tax-treatment).
+
+#### Balance Shows Funds but Checkout Says "Insufficient"
+On single-currency stores that previously ran in multi-currency mode, the displayed balance and the
+spendable balance could diverge. TeraWallet 1.6.4 ships a **one-time upgrade** that normalizes any
+leftover non-base ledger rows into the store base currency, so the two figures agree again. If you
+just upgraded, reload the wallet page once to let the upgrade run.
 
 ### Frequently Asked Questions
 

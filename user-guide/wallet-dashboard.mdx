@@ -5,12 +5,29 @@ description: "How customers can manage their balance, view history, and perform 
 
 Customers can manage their wallet balance directly from their WooCommerce account page. TeraWallet seamlessly integrates a "My Wallet" tab into the customer dashboard.
 
+### Dashboard Summary Cards
+
+<Info>
+  **New in 1.6.4.** A row of summary cards appears above the recent transactions list.
+</Info>
+
+When a customer opens **My Account → My Wallet**, they first see four at-a-glance cards:
+
+- **Total top-ups** — everything the customer has added to their wallet.
+- **Total spent** — both full wallet payments and partial payments.
+- **Cashback earned** — shown only when the cashback reward program is enabled.
+- **Available balance** — current spendable funds.
+
+These figures share the same helper used by the admin user report, so the customer dashboard and the
+admin screen always agree. Add-ons can register their own cards (for example "Total withdrawn") via
+the `woo_wallet_dashboard_stat_cards` filter.
+
 ### Viewing Balance & Transactions
 
 Customers can navigate to **My Account** > **My Wallet** to:
 
 - **Check Current Balance**: The total available funds are displayed prominently.
-- **View Transaction History**: A detailed table showing every credit and debit, along with dates and descriptions.
+- **View Transaction History**: A detailed table showing every credit and debit, along with dates and descriptions. The **Details** column wraps onto multiple lines so long descriptions stay readable on mobile.
 - **Filter History**: Customers can use date range filters to audit their transaction history.
 
 ### Adding Funds (Top-up)
@@ -42,6 +59,7 @@ You can display wallet information anywhere on your site using these shortcodes:
 
 - `[woo-wallet]`: Displays the full wallet dashboard (recommended for a dedicated "My Wallet" page).
 - `[mini-wallet]`: Shows a simple widget with the user's current balance, ideal for headers or sidebars.
+- `[tw-sell-content]`: Renders the Sell Content action UI (when the Sell Content earning action is enabled).
 
 <Tip>
   If you're using a page builder like Elementor or Gutenberg, you can insert the `[mini-wallet]` shortcode into your navigation menu for a personalized user experience.

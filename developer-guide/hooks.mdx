@@ -71,6 +71,40 @@ add_filter( 'woo_wallet_partial_payment_amount', function( $amount ) {
 } );
 ```
 
+### Recently Added Hooks (1.6.1–1.6.4)
+
+These hooks were introduced in recent releases. Each name below was verified against the plugin
+source.
+
+| Hook | Type | Since | Purpose |
+| --- | --- | --- | --- |
+| `woo_wallet_dashboard_stat_cards` | filter | 1.6.4 | Register custom summary cards on the customer dashboard (e.g. "Total withdrawn"). |
+| `woo_wallet_partial_payment_max_amount` | filter | 1.6.4 | Cap the wallet amount that can be applied to an order at checkout. |
+| `woo_wallet_partial_payment_refund_amount` | filter | 1.6.4 | Override the wallet amount refunded on a partial WooCommerce refund. |
+| `woo_wallet_partial_payment_debit_failed` | action | 1.6.4 | Fires when a deferred partial-payment debit fails because the balance was spent before payment completed. |
+| `woo_wallet_allowed_dashboard_actions` | filter | 1.6.4 | Allow-list of dashboard tabs the `wallet_action` parameter may dispatch. |
+| `woo_wallet_cashback_refund_clawback_amount` | filter | 1.6.1 | Override the cashback amount clawed back on a refund. |
+| `woo_wallet_cashback_expiry_timestamp` | filter | 1.6.1 | Mark a cashback row as expiring at a given timestamp (Pro/add-on seam). |
+| `woo_wallet_transaction_types` | filter | 1.6.3 | Register custom transaction categories. |
+| `woo_wallet_user_transactions_purged` | action | 1.6.1 | Fires after a Delete Logs purge completes. |
+| `woo_wallet_enable_per_currency_mode` | filter | 1.6.0 | Enable the per-currency ledger mode. |
+
+#### Example: add a dashboard summary card
+
+```php
+add_filter( 'woo_wallet_dashboard_stat_cards', function( $cards, $user_id ) {
+    $cards['withdrawn'] = array(
+        'id'       => 'withdrawn',
+        'priority' => 80,
+        'tone'     => 'neutral',
+        'icon'     => 'wallet',
+        'label'    => __( 'Total withdrawn', 'your-textdomain' ),
+        'value'    => your_get_total_withdrawn( $user_id ),
+    );
+    return $cards;
+}, 10, 2 );
+```
+
 <Tip>
   When using hooks that modify balance or payment eligibility, always test with a non-admin user to ensure correct front-end behavior.
 </Tip>

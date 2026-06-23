@@ -11,7 +11,11 @@ This tab controls the fundamental behavior of the wallet system.
 
 - **Enable Partial Payment**: When active, customers can use their wallet balance for a portion of the total order.
 - **Is auto deduct for partial payment**: Automatically applies the customer's wallet balance as a discount if partial payment is enabled.
+- **Tax treatment** *(new in 1.6.4)*: Choose **Wallet pays goods only** (default) or **Wallet pays the whole order including tax**. See [Partial & Combined Payments](/user-guide/partial-payments#tax-treatment).
+- **Deduct wallet balance** *(new in 1.6.4)*: Deduct the wallet portion **at order placement** (default) or **when payment completes**.
+- **Refund wallet on partial refunds** *(new in 1.6.4)*: Return a proportional share of the wallet payment when a partial WooCommerce refund is issued. On by default.
 - **Enable Wallet Transfer**: Allow users to transfer funds to other registered customers using their email address.
+- **Minimum/Maximum Transfer Amount**: Bound how much a customer can send in a single transfer.
 - **Transfer Charge**: Optionally set a fixed or percentage-based charge for each fund transfer.
 - **Enable Wallet Topup**: Allow customers to add funds manually via their account dashboard.
 - **Minimum/Maximum Topup Amount**: Restrict the amount a customer can add to their wallet in a single transaction.
@@ -28,8 +32,22 @@ Configure how rewards are credited to users' wallets.
 - **Cashback Amount**: The default value for the reward.
 - **Max Cashback Amount**: Caps the total reward per order to a specific limit.
 - **Min Cart Amount for Cashback**: The minimum total an order must reach to qualify for any cashback.
+- **Max Cashback Scope** *(new in 1.6.1)*: Apply the cap **per order** (default on new installs) or **per item**.
+- **Refund Clawback** *(new in 1.6.1)*: Proportionally reverse cashback when an order is refunded (off by default), with an optional **allow negative** setting.
 - **Exclude Role from Cashback**: Select user roles (e.g., Administrator, Vendor) that should not receive rewards.
 - **Process Cashback Status**: Define which WooCommerce order statuses trigger the reward (e.g., Completed, Processing).
+
+See [Cashback Rules & Priority Logic](/cashback/rules-logic) for the full calculation model.
+
+### Transaction Descriptions
+
+<Info>
+  **New in 1.6.3.** A dedicated settings tab for customizing ledger entry text.
+</Info>
+
+Set per-category description templates so ledger entries read the way you want. Templates support
+tokens — `{order_id}`, `{amount}`, `{user_name}`, `{currency}` and `{original_details}` — and
+replace the system-generated description on new transactions when configured.
 
 ### Gateway Settings
 
@@ -43,9 +61,11 @@ TeraWallet acts as a WooCommerce gateway. Here, you can control its visibility a
 
 Incentivize user engagement by rewarding specific site actions:
 
-- **New User Registration**: Credit a specific amount to new users upon signing up.
+- **New User Registration**: Credit a specific amount to new users upon signing up. Since 1.6.2 this also covers users created via SSO/SAML, social login, the REST API and WP-CLI.
 - **Daily Visit**: Reward users for logging in once per day.
 - **Product Review**: Credit users for leaving verified reviews on your products.
+- **Referrals**: Reward customers for referring visitors and sign-ups. Activity is recorded in a dedicated referrals ledger with a customer history view and an admin [Referral Report](/admin-guide/transactions#referral-report).
+- **Sell Content**: Let users sell digital content and receive the proceeds into their wallet.
 
 <Tip>
   When configuring rewards for actions like registrations or reviews, ensure you have set limits to prevent abuse (e.g., limit daily visit rewards to once per 24 hours).

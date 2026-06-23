@@ -8,7 +8,8 @@ TeraWallet is built with a modular, object-oriented approach that prioritizes da
 ### Core Architecture
 
 - **Database-First Ledger**: Unlike many WordPress plugins that rely solely on user meta, TeraWallet uses a custom database table for all transaction records. This ensures that the wallet balance is always auditable and accurate.
-- **MySQL Locking Mechanism**: To prevent race conditions during concurrent transactions (e.g., multiple simultaneous API calls or AJAX requests), TeraWallet employs **MySQL-level locking** (`GET_LOCK`) when performing credit or debit operations.
+- **MySQL Locking Mechanism**: To prevent race conditions during concurrent transactions (e.g., multiple simultaneous API calls or AJAX requests), TeraWallet employs **MySQL-level locking** (`GET_LOCK`) when performing credit or debit operations. Money-moving paths additionally serialize partial-payment debits and refunds with a **per-order lock** so concurrent gateway webhooks can't double-debit or double-refund.
+- **Idempotent REST writes**: State-changing endpoints replay the cached response for a repeated `Idempotency-Key`, so retries never duplicate top-ups, transfers or bulk credits.
 - **Singleton Lifecycle**: The main `Woo_Wallet` class (in `class-woo-wallet.php`) uses a singleton pattern to manage sub-modules like the Wallet, Cashback, API, and Settings.
 
 ### Folder Structure
@@ -37,6 +38,22 @@ TeraWallet creates two primary tables during installation:
   - `details`: A detailed description of the entry.
 - `wp_woo_wallet_transaction_meta`:
   - Stores additional metadata for each transaction (e.g., associated order ID, cashback type).
+- `wp_woo_wallet_referrals` *(since 1.6.2)*:
+  - One row per visitor or sign-up referral, with status, reward amount and the currency it was
+    credited in — giving referrals a full audit trail.
+
+Since 1.6.0, the transactions table also carries per-row currency audit columns (`original_amount`,
+`original_currency`, `original_rate`, `mode`), and since 1.6.3 a first-class indexed `category`
+column.
+
+### Multi-Currency
+
+TeraWallet abstracts currency conversion behind a provider layer with first-class adapters for
+**WOOCS/FOX, WPML/WCML, CURCY, Aelia and YayCurrency**, plus a generic fallback for any plugin that
+filters `woocommerce_currency`. The ledger runs in one of two modes — `single_base` (one canonical
+balance in the shop base currency) or `per_currency` (separate sub-balances), the latter gated by
+the `woo_wallet_enable_per_currency_mode` filter. Inspect the active provider and mode at runtime via
+`GET /terawallet/v1/system/multicurrency`.
 
 ### Core Transaction Flow
 

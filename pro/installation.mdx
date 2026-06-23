@@ -1,0 +1,58 @@
+---
+title: "Installation & Licensing"
+description: "How to install TeraWallet Pro, activate your license for updates, and configure the Pro modules."
+---
+
+TeraWallet Pro installs alongside the free core plugin and adds its settings into the existing
+TeraWallet admin.
+
+## Before you start
+
+Make sure **TeraWallet (core)** is installed and **active** first. Pro declares core as a required
+plugin and none of its modules load without it.
+
+## Install the add-on
+
+1. Purchase TeraWallet Pro from [StandaloneTech](https://standalonetech.com/product/woocommerce-wallet-pro/)
+   and download the plugin ZIP.
+2. In WordPress, go to **Plugins → Add New → Upload Plugin**.
+3. Choose the `woo-wallet-pro` ZIP and click **Install Now**.
+4. Click **Activate**.
+
+After activation, the Pro modules appear inside **TeraWallet → Settings** (a new **Withdrawal** tab,
+plus **Wallet Coupon** and **Credit Expiry** options), and an **Import** entry is added for bulk
+balance management.
+
+<Warning>
+  If you previously used the standalone add-ons (Wallet Withdrawal, Wallet Coupons, Wallet Importer,
+  Credit Expiry, AffiliateWP for TeraWallet), **deactivate them** after installing Pro — it bundles
+  all of them and will warn you if any are still active.
+</Warning>
+
+## Activate your license
+
+A valid license unlocks **automatic updates** and support.
+
+1. Go to the TeraWallet **Extensions / Go Pro** page in the admin menu.
+2. Enter your **license key** from your StandaloneTech account.
+3. Click **Activate**.
+
+Once activated, plugin updates appear in **Dashboard → Updates** like any other plugin. Deactivating
+the license on a site frees the activation for use elsewhere.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Set up withdrawals" icon="money-bill-transfer" href="/pro/withdrawal">
+    Enable payout gateways and the minimum/maximum withdrawal amounts.
+  </Card>
+  <Card title="Configure credit expiry" icon="hourglass-half" href="/pro/wallet-expiry">
+    Set a global expiry duration and optional per-category rules.
+  </Card>
+  <Card title="Create wallet coupons" icon="ticket" href="/pro/wallet-coupons">
+    Build coupons that top up the wallet on redemption.
+  </Card>
+  <Card title="Import balances" icon="file-csv" href="/pro/importer">
+    Bulk-load credits and debits from a CSV file.
+  </Card>
+</CardGroup>

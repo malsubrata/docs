@@ -1,0 +1,69 @@
+---
+title: "Key Features"
+description: "An at-a-glance tour of everything TeraWallet can do — wallet top-ups, partial payments, cashback, transfers, earning actions and more."
+---
+
+TeraWallet turns WooCommerce into a full digital-wallet platform. Here's the complete picture,
+with links to the deep-dive guide for each capability.
+
+## Money in, money out
+
+<CardGroup cols={2}>
+  <Card title="Wallet Top-ups" icon="wallet" href="/user-guide/wallet-dashboard">
+    Customers add funds through any WooCommerce payment gateway. Set min/max amounts and optional
+    per-gateway charges.
+  </Card>
+  <Card title="Partial & Combined Payments" icon="credit-card" href="/user-guide/partial-payments">
+    Pay part of an order from the wallet and the rest with another gateway, with full control over
+    tax treatment, refund behavior and debit timing.
+  </Card>
+  <Card title="Peer-to-Peer Transfers" icon="arrow-right-arrow-left" href="/user-guide/wallet-dashboard">
+    Customers send balance to other registered users, with configurable minimums and transfer fees.
+  </Card>
+  <Card title="Refunds" icon="rotate-left" href="/admin-guide/transactions">
+    Native WooCommerce refunds credit the wallet automatically — full cancellations and proportional
+    partial refunds alike.
+  </Card>
+</CardGroup>
+
+## Rewards & engagement
+
+<CardGroup cols={2}>
+  <Card title="Cashback Engine" icon="gift" href="/cashback/rules-logic">
+    Reward customers cart-wise, product-wise or category-wise, with per-order or per-item caps and
+    optional clawback on refund.
+  </Card>
+  <Card title="Earning Actions" icon="trophy" href="/admin-guide/settings">
+    Credit the wallet for daily visits, new registrations, product reviews, referrals, and selling
+    content.
+  </Card>
+  <Card title="Referral Program" icon="users" href="/admin-guide/transactions">
+    A dedicated referrals ledger with customer history and an admin Referral Report.
+  </Card>
+  <Card title="Coupons as Cashback" icon="ticket" href="/cashback/rules-logic">
+    Convert standard WooCommerce coupons into wallet rewards instead of direct discounts.
+  </Card>
+</CardGroup>
+
+## Operations & platform
+
+<CardGroup cols={2}>
+  <Card title="Digital Ledger" icon="ledger" href="/admin-guide/transactions">
+    An append-only, SQL-locked transaction ledger that stays accurate under heavy concurrency.
+  </Card>
+  <Card title="Multi-Currency" icon="coins" href="/developer-guide/architecture">
+    Adapters for WOOCS/FOX, WPML/WCML, CURCY, Aelia and YayCurrency, with per-row currency audit
+    columns.
+  </Card>
+  <Card title="REST API" icon="webhook" href="/developer-guide/rest-api">
+    The `terawallet/v1` API for balances, transactions, top-ups, transfers and admin tooling.
+  </Card>
+  <Card title="Developer Hooks" icon="code" href="/developer-guide/hooks">
+    A rich set of actions and filters for deep customization and marketplace integrations.
+  </Card>
+</CardGroup>
+
+<Tip>
+  Looking for withdrawals, wallet expiry, importers or AffiliateWP integration? Those live in
+  [TeraWallet Pro](/getting-started/pro).
+</Tip>

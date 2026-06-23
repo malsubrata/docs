@@ -13,17 +13,17 @@ When partial payment is enabled, TeraWallet calculates the available balance and
 
 Here is a step-by-step example of how a partial payment transaction works:
 
-1. **User Balance**: The customer has **₹100** in their wallet.
-2. **Cart Total**: The customer adds items worth **₹300** to their cart.
+1. **User Balance**: The customer has **\$100** in their wallet.
+2. **Cart Total**: The customer adds items worth **\$300** to their cart.
 3. **Applying Balance**: On the checkout page, the user chooses to use their wallet balance.
 4. **Calculated Totals**:
-   - Subtotal: ₹300
-   - **Wallet Deduction (Via Wallet): -₹100**
-   - **New Total to Pay: ₹200**
-5. **Final Payment**: The customer pays the remaining **₹200** using their preferred gateway (e.g., Credit Card).
+   - Subtotal: \$300
+   - **Wallet Deduction (Via Wallet): -\$100**
+   - **New Total to Pay: \$200**
+5. **Final Payment**: The customer pays the remaining **\$200** using their preferred gateway (e.g., Credit Card).
 6. **Post-Payment**:
    - WooCommerce marks the order as paid.
-   - TeraWallet debits ₹100 from the customer's wallet ledger.
+   - TeraWallet debits \$100 from the customer's wallet ledger.
    - The ledger entry will show: "For order payment #1234 (Partial)".
 
 ### Auto-Deduct Feature
@@ -32,12 +32,48 @@ Administrators can enable **Auto-Deduct** in the settings. When active:
 - The maximum available wallet balance is **automatically applied** as a discount when the customer reaches the checkout page.
 - The customer doesn't need to manually toggle the option.
 
+### Tax Treatment
+
+<Info>
+  **New in 1.6.4.** Set this under **TeraWallet → Settings → General → Partial Payment**.
+</Info>
+
+Because WooCommerce clamps negative fees to the *ex-tax* subtotal, a non-taxable wallet fee can't
+pay the tax portion of an order. The **Tax treatment** setting lets you decide how the wallet fee
+interacts with tax:
+
+- **Wallet pays goods only** *(default)* — the wallet fee is clamped to the ex-tax subtotal and tax
+  is charged on the order. Correct when wallet top-ups are **not** taxed at load.
+- **Wallet pays the whole order including tax** — the wallet fee is taxable, so the wallet can cover
+  the tax line too. Use this only when top-ups **are** taxed when the customer loads them.
+
+### When the Wallet is Debited
+
+<Info>
+  **New in 1.6.4.** "Deduct wallet balance" timing, under **Settings → General → Partial Payment**.
+</Info>
+
+- **At order placement** *(default)* — the wallet portion is debited immediately when the order is
+  created.
+- **When payment completes** — the wallet is debited only once the order reaches a paid status, so
+  abandoned or failed orders never leave the wallet debited. If the balance was already spent
+  elsewhere before payment cleared, the order is placed **on-hold** and the
+  `woo_wallet_partial_payment_debit_failed` action fires instead of overdrafting the wallet.
+
 ### Refund Logic for Partial Payments
 
-If an order paid partially is cancelled or refunded:
-- TeraWallet identifies the amount that was paid via the wallet.
-- That specific amount is automatically credited back to the customer's wallet.
-- The remaining amount (paid via the secondary gateway) must be handled separately by the administrator within the gateway's refund interface.
+If an order paid partially is **cancelled**, the full wallet portion is credited back automatically.
+
+Since 1.6.4, **partial** WooCommerce refunds are also handled: TeraWallet returns a **proportional**
+share of the wallet payment to the customer's balance — capped so the cumulative refund can never
+exceed the original wallet debit, and idempotent per refund.
+
+- Refunds reverse the exact base-currency amount originally debited, so multi-currency stores see no
+  phantom FX gain or loss.
+- You can opt out per store with **Refund wallet on partial refunds**, or override the amount with
+  the `woo_wallet_partial_payment_refund_amount` filter.
+- The remaining amount (paid via the secondary gateway) must still be refunded separately by the
+  administrator within that gateway's interface.
 
 ### Important Notes
 

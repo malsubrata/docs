@@ -1,0 +1,56 @@
+---
+title: "Pro Settings Reference"
+description: "Every TeraWallet Pro setting in one place — withdrawal, wallet coupon and credit expiry options and where to find them."
+---
+
+TeraWallet Pro adds its settings into the existing **TeraWallet → Settings** screen. This page is a
+quick reference; each setting is explained in depth on its feature page.
+
+## Withdrawal
+
+Found on the **Withdrawal** tab. See [Wallet Withdrawal](/pro/withdrawal).
+
+| Setting | Description |
+| --- | --- |
+| **Enable Withdrawal** | Master switch for the withdrawal module. |
+| **Approval Mode** | Approve requests manually, or auto-approve and pay out immediately. |
+| **Minimum Withdrawal** | Smallest amount a customer may request. |
+| **Maximum Withdrawal** | Largest amount a customer may request. |
+| **Enable logging** | Write per-gateway debug logs, surfaced on each withdrawal screen. |
+| **Enable {gateway}** | Turn an individual payout gateway on, and enter its API credentials. |
+| **Enable Processing Fee** | Charge a fee per gateway (deducted from the payout). |
+| **Fee Type** | `percent`, `fixed`, or `percent + fixed`. |
+| **Fee Amount** / **Fixed Component** | The fee value (and the flat part for `percent + fixed`). |
+
+## Wallet Coupon
+
+A **Wallet Coupon** toggle plus per-coupon options on the coupon editor. See
+[Wallet Coupons](/pro/wallet-coupons).
+
+| Setting | Description |
+| --- | --- |
+| **Enable Wallet Coupon** | Allow coupons that credit the wallet instead of discounting the cart. |
+| **Coupon value / currency** | The amount (and currency) credited on redemption. |
+| **Email / domain restriction** | Limit redemption to addresses or domains (wildcards supported). |
+| **Usage limits** | Global and per-user redemption caps. |
+| **Expiry date** | Deadline after which the code can no longer be redeemed. |
+
+## Credit Expiry
+
+Found in the **Credit Expiry** options. See [Credit Expiry & FIFO](/pro/wallet-expiry).
+
+| Setting | Description |
+| --- | --- |
+| **Enable Credit Expiry** | Master switch for credit expiry and FIFO redemption. |
+| **Credit Expire (default)** | Global duration after which new credit expires. |
+| **Per-category durations** | Override the global default for specific transaction categories. |
+
+## Importer
+
+The [Bulk Importer](/pro/importer) has no settings tab — it's an admin screen reached from
+**Tools → Import → WooCommerce Wallet** or the **Import** action on the TeraWallet users screen.
+
+## AffiliateWP
+
+The [AffiliateWP Integration](/pro/affiliatewp) has no settings of its own; it adds a **Wallet
+Payout** method to AffiliateWP, which affiliates select in their own dashboard.

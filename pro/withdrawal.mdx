@@ -1,0 +1,81 @@
+---
+title: "Wallet Withdrawal"
+description: "Let customers cash out their TeraWallet balance to PayPal, Stripe, Razorpay, Paystack, Cashfree or bank transfer, with admin approval and per-gateway fees."
+---
+
+The Withdrawal module turns store credit into real-world payouts. Customers request a withdrawal
+from their account, and you approve or reject it — manually or automatically — paid out through one
+of six gateways.
+
+## Supported payout gateways
+
+| Gateway | Notes |
+| --- | --- |
+| **PayPal** | Payouts API. Loads for any store currency. |
+| **Stripe** | Stripe Transfers. Loads for any currency. Supports asynchronous webhook updates. |
+| **BACS** (Bank Transfer) | Manual bank transfer; you mark requests paid after sending. Loads for any currency. |
+| **Razorpay** (RazorpayX) | `INR` only. |
+| **Cashfree** | Payouts v2 API. `INR` only. |
+| **Paystack** | `NGN`, `GHS`, `ZAR`, `KES`, `USD`, `EUR`, `GBP`. |
+
+Currency-incompatible gateways are hidden automatically. Developers can register custom gateways via
+the `woo_wallet_withdrawal_payment_gateways` filter — see [Pro Hooks](/pro/hooks).
+
+## Admin setup
+
+Go to **TeraWallet → Settings → Withdrawal** and configure:
+
+- **Enable Withdrawal** — master switch for the module.
+- **Approval Mode** — approve requests manually, or auto-approve and pay out immediately.
+- **Minimum / Maximum Withdrawal** — bounds for a single request.
+- **Enable logging** — write per-gateway debug logs (surfaced on each withdrawal screen).
+- **Per-gateway options** — enable each gateway, enter its API credentials, and set its processing
+  fee (see below).
+
+### Processing fees (per gateway)
+
+Each gateway has its own fee, configured with **Enable Processing Fee**, **Fee Type** and **Fee
+Amount**:
+
+- **Fee Type**: `percent`, `fixed`, or `percent + fixed` (a percentage plus a flat **Fixed
+  Component**).
+- The fee is **deducted from the payout**, not added to the debit: the wallet is debited the
+  **requested** amount, and the gateway pays out `amount − fee`.
+
+<Note>
+  Fees are configured strictly per gateway. The old global "gateway charge" options were removed in
+  Pro 1.0.4 in favor of this per-gateway model.
+</Note>
+
+## Customer experience
+
+1. The customer opens **My Account → Wallet** and goes to the **Withdrawal** tab.
+2. First time only: they save a **Payment Settings** profile (e.g. PayPal email, bank details)
+   for their chosen gateway.
+3. They enter an amount (within your min/max and their available balance) and submit the request.
+4. They receive a **request submitted** email, and **approval** or **rejection** emails as the
+   request progresses.
+
+A request moves through **pending → approved (paid)** or **rejected**. On approval the wallet is
+debited and the payout is sent; idempotency keys ensure re-approving a request can never pay twice.
+
+## Managing requests
+
+Withdrawal requests are stored as their own admin list. For each request you can:
+
+- **Approve** or **Reject** it (rejection returns nothing from the wallet, since the debit happens on
+  approval).
+- Add **notes** — private (staff-only) or customer-visible, like WooCommerce order notes.
+- Review **per-withdrawal gateway logs** when logging is enabled.
+
+### Asynchronous payout webhooks
+
+Stripe, PayPal, Razorpay, Cashfree and Paystack can report final payout status back via signed
+webhooks under the `terawallet/v1` REST namespace (Stripe's endpoint is
+`/wp-json/terawallet/v1/stripe/webhook`). Signatures are verified and replays are rejected. Set the
+gateway's webhook secret in its settings to enable this.
+
+<Tip>
+  Use **BACS** for manual bank transfers where you pay out by hand and simply mark the request
+  approved once the transfer is sent.
+</Tip>

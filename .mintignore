@@ -1,0 +1,12 @@
+# Files and folders Mintlify should NOT scan or publish.
+# Uses .gitignore-style patterns. (.git, node_modules, README.md, etc. are
+# already ignored by default.)
+
+# Plugin source — kept in this repo only as the source of truth for the docs.
+# It is not documentation and must not be parsed/published by Mintlify.
+woo-wallet-src/
+woo-wallet-pro-src/
+
+# AI-assistant context files (not docs pages).
+CLAUDE.md
+GEMINI.md

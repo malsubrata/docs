@@ -52,3 +52,35 @@ In cases of suspected fraud or dispute, you can lock a user's wallet account:
 <Warning>
   Manual adjustments to the ledger should be done carefully, as they are recorded permanently in the audit trail. Always provide a clear description for future reference.
 </Warning>
+
+### Bulk Credit & Debit
+
+From the **Wallet → Users** screen you can select multiple users and apply a bulk **Credit** or
+**Debit**. A popup collects the amount and description, and bulk adjustments are tagged with the
+`adjustment` category. Bulk operations are idempotent per user, so a retry after an interrupted run
+will not double-credit anyone.
+
+### Deleting Transaction Logs
+
+The **Delete Logs** bulk action opens a modal where you choose:
+
+- **Delete mode** — **Soft** (recoverable; rows are flagged `deleted`) or **Hard** (permanent removal).
+- **Balance handling** — **Keep** (insert a single balancing entry so the user's balance is
+  unchanged) or **Wipe** (let the balance settle to `0`).
+
+Negative balances are preserved symmetrically when **Keep** is chosen.
+
+### Exporting Transactions
+
+Transaction history can be exported to CSV for accounting and audits. The export includes the typed
+**category** column (`topup`, `cashback`, `partial_payment`, `transfer`, `refund`, `adjustment`, etc.).
+
+### Referral Report
+
+<Info>
+  **New in 1.6.2.** Available under **TeraWallet → Referral Report**.
+</Info>
+
+When the Referrals earning action is enabled, the Referral Report lists every referral with the
+referrer, type, status (pending / credited / rejected) and date, plus referrer/type/status and
+date-range filters, a store-wide summary header, and a filtered CSV export.

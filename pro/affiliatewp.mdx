@@ -1,0 +1,34 @@
+---
+title: "AffiliateWP Integration"
+description: "Pay AffiliateWP commissions directly into the TeraWallet balance, crediting on paid referrals and reversing on refunds."
+---
+
+The AffiliateWP module bridges your affiliate program and your store's wallet economy: affiliates can
+receive their commissions as wallet balance instead of an external payout.
+
+<Note>
+  This module requires the **AffiliateWP** plugin to be installed and active. Without it, the module
+  silently stays dormant.
+</Note>
+
+## How it works
+
+- A new **Wallet Payout** method is added to AffiliateWP (via the `affwp_payout_methods` filter).
+- Affiliates **opt in** to wallet payouts from their affiliate dashboard.
+- When a referral is marked **Paid**, the commission is **credited** to the affiliate's wallet.
+- If a referral is later **reversed** (e.g. the order is refunded), the corresponding amount is
+  **debited** back out automatically, keeping balances accurate.
+
+## Setup
+
+1. Install and activate **AffiliateWP** and **TeraWallet Pro**.
+2. The **Wallet Payout** option becomes available in AffiliateWP automatically.
+3. Affiliates choose **Wallet Payout** as their preferred payout method in their dashboard.
+
+From then on, commission crediting and reversal happen automatically as referral statuses change.
+
+<Tip>
+  Wallet payouts pair well with [Wallet Coupons](/pro/wallet-coupons) and
+  [Credit Expiry](/pro/wallet-expiry) to build a complete affiliate-loyalty loop — reward
+  ambassadors with store credit they're encouraged to spend.
+</Tip>

@@ -1,0 +1,50 @@
+---
+title: "Credit Expiry & FIFO"
+description: "Automatically expire TeraWallet store credit on a schedule, spend the soonest-to-expire credit first, and send reminder and lapse emails."
+---
+
+The Credit Expiry module gives store credit a lifecycle. Credits expire after a configurable
+duration, the soonest-to-expire credit is always spent first (FIFO), and expired credit is removed
+from both the spendable and the displayed balance.
+
+## How it works
+
+- **Expiry date per credit** — when credit is added, an expiry date is stamped on the ledger row
+  based on your rules.
+- **FIFO redemption** — debits consume credits in **expiry-date order** (oldest/soonest-to-expire
+  first), so customers always use credit that is about to lapse before newer credit.
+- **Currency-aware** — a debit in one currency only consumes credits in that same currency.
+- **Balance filtering** — expired credit is excluded from the customer's viewable and spendable
+  balance (the module hooks the core `woo_wallet_current_balance` filter).
+
+<Info>
+  On activation, Pro adds `expire_date` and `amount_redeemed` columns to the core wallet ledger and
+  runs a one-time background backfill so FIFO is consistent with your existing transaction history.
+</Info>
+
+## Configuration
+
+Go to **TeraWallet → Settings** and open the **Credit Expiry** options:
+
+- **Enable Credit Expiry** — master switch.
+- **Credit Expire (default)** — the global duration after which new credit expires (e.g. 30 days).
+- **Per-category durations** *(since Pro 1.0.4)* — override the global default for specific
+  transaction categories (for example, expire cashback faster than top-ups).
+
+Per-transaction expiry can also be set when [importing balances](/importer) (the optional
+`expire_date` CSV column) and on admin-side credits.
+
+## Retention emails
+
+Two automated emails keep customers informed:
+
+- **Expiry reminder** — sent before credit is due to expire, nudging the customer to spend it.
+- **Expiry notice** — sent when credit has lapsed.
+
+A daily background task (Action Scheduler) processes expirations and reminder windows in paginated
+batches, so it scales without loading every credit into memory.
+
+<Tip>
+  Pair expiry with refunds: instead of refunding cash, issue store credit that expires in, say, 90
+  days to encourage a repeat purchase.
+</Tip>

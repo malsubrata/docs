@@ -13,12 +13,12 @@ TeraWallet supports three primary ways to calculate rewards:
 This rule applies to the total order value.
 - **Trigger**: When an order is placed.
 - **Configuration**: Set in **TeraWallet** > **Settings** > **Credit**.
-- **Example**: If set to 10% and the cart total is ₹1,000, the user receives ₹100 cashback.
+- **Example**: If set to 10% and the cart total is \$1,000, the user receives \$100 cashback.
 
 #### 2. Product-Wise Cashback (Specific)
 This rule gives you granular control over individual products.
 - **Configuration**: Defined on the **Product Edit** page in WooCommerce.
-- **Example**: Reward ₹50 for a "Premium T-shirt" but 5% for a "Luxury Watch."
+- **Example**: Reward \$50 for a "Premium T-shirt" but 5% for a "Luxury Watch."
 - **Variable Support**: Different cashback amounts can be set for different product variations.
 
 #### 3. Category-Wise Cashback (Taxonomy)
@@ -39,15 +39,15 @@ When multiple rules are active, TeraWallet follows this priority:
 
 **Example A: Percentage vs. Fixed**
 - Global: 10%
-- Max Cashback: ₹100
-- Order Total: ₹2,000
-- **Calculation**: 10% of ₹2,000 is ₹200, but since the **Max Cashback** is set to ₹100, the user receives **₹100**.
+- Max Cashback: \$100
+- Order Total: \$2,000
+- **Calculation**: 10% of \$2,000 is \$200, but since the **Max Cashback** is set to \$100, the user receives **\$100**.
 
 **Example B: Category-Wise Override**
 - Global: 5%
 - "Electronics" Category: 10%
-- Order Total: ₹500 (Electronics items)
-- **Calculation**: The user receives **₹50** (10%) instead of ₹25 (5%) because the category rule has higher priority.
+- Order Total: \$500 (Electronics items)
+- **Calculation**: The user receives **\$50** (10%) instead of \$25 (5%) because the category rule has higher priority.
 
 ### When are rewards credited?
 
@@ -55,6 +55,38 @@ Cashback is not awarded immediately. It is triggered by order status changes.
 - Go to **TeraWallet** > **Settings** > **Credit** and find **Process Cashback Status**.
 - Most stores set this to **Completed** or **Processing**.
 - **Flow**: Customer Pays -> Order Marked as Completed -> **Cashback Credited**.
+
+### Cap Scope: Per Order vs Per Item
+
+<Info>
+  **New in 1.6.1.** Set **Max cashback scope** under **Settings → Credit**.
+</Info>
+
+The **Max Cashback Amount** cap can be applied two ways:
+
+- **Per order** *(default on new installs)* — the cap applies once to the whole cart.
+- **Per item** — the cap applies to each qualifying line item.
+
+Stores upgrading from older versions keep **per item** behavior to preserve their existing setup.
+
+### Clawback on Refund
+
+By default, cashback is reversed when an order is **cancelled**. You can additionally enable
+**Refund clawback** under **Settings → Credit** so that cashback is clawed back **proportionally**
+when an order is refunded:
+
+- Off by default for upgrade safety — enable it explicitly.
+- If the customer has already spent the credit, the default policy debits whatever balance remains
+  and logs the shortfall. An opt-in **allow negative** option can drive the wallet negative for an
+  exact reversal.
+- Override the amount with the `woo_wallet_cashback_refund_clawback_amount` filter.
+
+### Cashback Expiry
+
+The free plugin does not enforce cashback expiry, but it exposes a seam
+(`woo_wallet_cashback_expiry_timestamp`) that [TeraWallet Pro](/getting-started/pro) and add-ons use
+to expire cashback after a set period. When set, the expiry is stored on the transaction and exposed
+in the REST API as `cashback_expires_at`.
 
 ### Coupons as Cashback
 
@@ -64,5 +96,6 @@ A unique feature where standard WooCommerce coupons can be "converted" into wall
 - When the customer applies this coupon, the discount is **not deducted** from the order total. Instead, the discount value is recorded and credited to the user's wallet after checkout.
 
 <Note>
-  Cashback is automatically clawed back if the order is cancelled, ensuring that customers do not receive rewards for returned products.
+  Cashback is automatically clawed back when an order is cancelled. To also reverse cashback on
+  **partial or full refunds**, enable **Refund clawback** in the settings (see above).
 </Note>

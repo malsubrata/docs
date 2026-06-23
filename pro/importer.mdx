@@ -1,0 +1,48 @@
+---
+title: "Bulk Importer"
+description: "Import thousands of TeraWallet credit and debit transactions from a CSV file, with batch processing, per-row currency and expiry, and error logs."
+---
+
+The Bulk Importer loads credit and debit transactions for many users at once from a CSV file — ideal
+for migrations, mass corrections, or seeding balances.
+
+## Opening the importer
+
+The importer is available from either:
+
+- **Tools → Import → WooCommerce Wallet**, or
+- the **Import** action on the TeraWallet users/balances screen.
+
+It runs as a modern admin screen and requires the `manage_options` capability.
+
+## CSV format
+
+Headers are matched **case- and whitespace-insensitively**.
+
+| Column | Required | Description |
+| --- | --- | --- |
+| `email` | ✅ | The user's account email. |
+| `amount` | ✅ | The transaction amount. |
+| `type` | ✅ | `credit` or `debit`. |
+| `details` | — | A description stored on the ledger entry. |
+| `expire_date` | — | Optional expiry for a credit row (works with [Credit Expiry](/pro/wallet-expiry)). |
+| `currency` | — | ISO 4217 code; validated against the store's WooCommerce currencies. |
+
+A `sample.csv` is included with the plugin to use as a template. Missing required columns are
+reported explicitly before processing starts.
+
+## Processing & error handling
+
+- **Batch processing** — large files are processed in batches in the background, so imports don't
+  time out. Developers can tune the batch size with the `woo_wallet_import_batch_size` filter.
+- **Per-row currency** — each row's `currency` is forwarded to the ledger; core's currency manager
+  handles conversion or per-currency storage transparently.
+- **Per-row expiry** — when `expire_date` is supplied on a credit row, it is applied to that exact
+  transaction (and takes precedence over the global Credit Expiry default).
+- **Error reporting** — rows that fail (for example, a non-existent user email) are listed in a
+  detailed log so you can fix and re-import them.
+
+<Warning>
+  Imports move real money in the ledger. Test with a small CSV first, and double-check the `type`
+  column — `debit` rows reduce balances.
+</Warning>

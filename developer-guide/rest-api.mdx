@@ -1,81 +1,228 @@
 ---
-title: "REST API Reference (v3)"
-description: "Documentation for the TeraWallet REST API endpoints."
+title: "REST API Reference"
+description: "Programmatic access to wallet balances, transactions, top-ups, transfers and admin tools via the terawallet/v1 REST API."
 ---
 
-TeraWallet extends the WooCommerce REST API under the `wc/v3/wallet` namespace. This allows developers to interact with the wallet system programmatically from external applications.
+TeraWallet ships a first-class REST API under the **`terawallet/v1`** namespace. It powers the
+plugin's own React dashboard and admin screens, and is fully available to your own apps and
+integrations.
 
-### Authentication
+<Note>
+  The older `wc/v3/wallet/*` routes still exist as a **deprecated** back-compatibility layer and
+  will be removed in a future major release. New integrations should target **`terawallet/v1`**.
+</Note>
 
-TeraWallet uses standard WooCommerce REST API authentication. You must provide a **Consumer Key** and **Consumer Secret** with the appropriate permissions.
+## Base URL
 
-### Endpoints
+```
+https://your-store.com/wp-json/terawallet/v1/
+```
 
-#### Get User Balance
-Retrieve the current wallet balance for a specific user.
+## Authentication
 
-- **URL**: `GET /wp-json/wc/v3/wallet/balance`
-- **Parameters**: 
-  - `email` (string): The email address of the user.
-- **Example Request**:
-  `GET https://example.com/wp-json/wc/v3/wallet/balance?email=customer@example.com`
-- **Response**:
+Endpoints are grouped by who may call them, and each group uses the matching auth method:
+
+| Group | Path prefix | Who | Authentication |
+| --- | --- | --- | --- |
+| Customer | `me/*` | The logged-in customer (acts on their own wallet) | WordPress cookie + REST nonce (same-origin), e.g. an `X-WP-Nonce` header |
+| Admin | `admin/*` | Users with the `manage_woocommerce` capability | Cookie + nonce, or WooCommerce **Consumer Key / Secret** (Basic Auth) |
+| Settings / System | `settings/*`, `system/*` | `manage_woocommerce` | Cookie + nonce, or Consumer Key / Secret |
+| Public | `public/*`, `settings/public` | Anyone | None |
+
+For external/server-to-server calls, generate keys under **WooCommerce → Settings → Advanced →
+REST API** and send them as HTTP Basic Auth.
+
+### Idempotency
+
+State-changing customer endpoints (`POST me/topup`, `POST me/transfer`) and admin bulk
+operations honor an **`Idempotency-Key`** request header. Send a unique key (e.g. a UUID) per
+logical action; a retry with the same key replays the original response instead of creating a
+duplicate top-up, transfer, or credit. Keys are scoped per user with a 24-hour TTL.
+
+---
+
+## Customer endpoints (`me/*`)
+
+### Get balance
+
+```
+GET /terawallet/v1/me/balance
+```
+
+Returns the current user's balance. The response is multi-currency aware: `amount` is in the
+active storefront currency, while `base_*` fields are always normalized to the shop base currency.
+
 ```json
 {
-  "balance": "250.00",
-  "currency": "USD"
+  "amount": 250.00,
+  "currency": "USD",
+  "formatted": "$250.00",
+  "base_currency": "USD",
+  "base_amount": 250.00,
+  "base_formatted": "$250.00",
+  "mode": "single_base",
+  "balances": [
+    { "currency": "USD", "amount": 250.00, "formatted": "$250.00" }
+  ]
 }
 ```
 
-#### Get Transaction History
-Retrieve a list of ledger entries for a specific user.
+| Field | Description |
+| --- | --- |
+| `amount` / `currency` / `formatted` | Balance in the active storefront currency. |
+| `base_amount` / `base_currency` | Total wallet value normalized to the shop base currency. |
+| `mode` | `single_base` or `per_currency` (see [multi-currency](#system-endpoints)). |
+| `balances[]` | Per-currency sub-balances; always at least one entry. |
 
-- **URL**: `GET /wp-json/wc/v3/wallet`
-- **Parameters**: 
-  - `email` (string): The email address of the user.
-- **Example Request**:
-  `GET https://example.com/wp-json/wc/v3/wallet?email=customer@example.com`
-- **Response**:
-```json
-[
-  {
-    "transaction_id": "101",
-    "type": "credit",
-    "amount": "50.00",
-    "balance": "250.00",
-    "details": "Cashback for Order #1234",
-    "date": "2024-03-28 10:00:00"
-  },
-  {
-    "transaction_id": "100",
-    "type": "debit",
-    "amount": "20.00",
-    "balance": "200.00",
-    "details": "For order payment #1233",
-    "date": "2024-03-27 15:30:00"
-  }
-]
+### List transactions
+
+```
+GET /terawallet/v1/me/transactions
+GET /terawallet/v1/me/transactions/{id}
 ```
 
-#### Create Manual Transaction (Admin Only)
-Manually credit or debit a user's wallet balance.
+Paginated ledger history for the current user.
 
-- **URL**: `POST /wp-json/wc/v3/wallet`
-- **Request Body**:
-  - `email` (string): The recipient's email.
-  - `type` (string): `credit` or `debit`.
-  - `amount` (float): The amount to adjust.
-  - `details` (string): A description for the ledger entry.
-- **Example Request**:
+| Query arg | Type | Notes |
+| --- | --- | --- |
+| `page`, `per_page` | integer | Standard pagination. |
+| `orderby` | string | `date`, `amount`, or `transaction_id`. |
+| `order` | string | `asc` or `desc`. |
+| `type` | string | Filter by `credit` or `debit`. |
+| `category` | string | Filter by transaction category (see below). |
+
+Each row exposes a typed **`category`**, one of: `topup`, `cashback`, `cashback_adjustment`,
+`cashback_refund`, `partial_payment`, `transfer`, `refund`, `adjustment`, `other`.
+
+### Create a top-up
+
+```
+POST /terawallet/v1/me/topup
+```
+
+Creates a top-up order and returns a payment URL to redirect the customer to.
+
+| Body field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `amount` | number | Yes | Minimum `0.01`. |
+| `payment_method` | string | No | A WooCommerce gateway id (e.g. `stripe`). |
+| `currency` | string | No | ISO 4217 code; charges the top-up in that currency. |
+
 ```json
 {
-  "email": "customer@example.com",
+  "order_id": 1234,
+  "amount": 50.00,
+  "currency": "USD",
+  "payment_url": "https://your-store.com/checkout/order-pay/1234/?pay_for_order=true&key=wc_order_..."
+}
+```
+
+<Tip>
+  Send an `Idempotency-Key` header so a double-submit (or a network retry) returns the original
+  order instead of creating a second top-up.
+</Tip>
+
+### Transfer funds
+
+```
+POST /terawallet/v1/me/transfer
+GET  /terawallet/v1/me/transfer/recipients
+```
+
+Send wallet balance to another registered user. Provide **either** `recipient_id` **or**
+`recipient_email`.
+
+| Body field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `recipient_id` | integer | One of id/email | Recipient user id. |
+| `recipient_email` | string | One of id/email | Recipient account email. |
+| `amount` | number | Yes | Subject to the configured min/max and transfer charge. |
+| `note` | string | No | Optional message stored on both ledger legs. |
+| `currency` | string | No | Optional ISO 4217 code. |
+
+The `recipients` route returns a lookup list for an autocomplete picker (gated by a filter).
+
+### Other customer reads
+
+| Endpoint | Returns |
+| --- | --- |
+| `GET /terawallet/v1/me` | Profile snapshot with wallet summary and related links. |
+| `GET /terawallet/v1/me/referrals` | The customer's referral share URL, visitor/signup counts and earnings. |
+| `GET /terawallet/v1/me/cashback-rules` | The cashback rules currently active for this customer/cart. |
+
+---
+
+## Admin endpoints (`admin/*`)
+
+Require the `manage_woocommerce` capability.
+
+### Transactions
+
+```
+GET    /terawallet/v1/admin/transactions
+POST   /terawallet/v1/admin/transactions
+GET    /terawallet/v1/admin/transactions/{id}
+PATCH  /terawallet/v1/admin/transactions/{id}
+DELETE /terawallet/v1/admin/transactions/{id}?force=true
+POST   /terawallet/v1/admin/transactions/bulk
+```
+
+List supports `page`, `per_page`, `orderby` (`id`, `transaction_id`, `date`, `amount`,
+`currency`, `type`, `user_id`), `order`, and `type` filters.
+
+Create a manual credit or debit:
+
+```json
+{
+  "user_id": 42,
   "type": "credit",
-  "amount": "10.00",
-  "details": "Correction by Admin"
+  "amount": 10.00,
+  "details": "Goodwill credit"
 }
 ```
+
+`DELETE` performs a soft delete by default; pass `?force=true` for a permanent delete. The
+`bulk` route accepts an `action` of `credit`, `debit`, or `delete` and is idempotent per user.
+
+### Users
+
+```
+GET  /terawallet/v1/admin/users
+GET  /terawallet/v1/admin/users/{id}
+POST /terawallet/v1/admin/users/{id}/lock
+POST /terawallet/v1/admin/users/{id}/unlock
+```
+
+List users with their balances, read a single user, and lock/unlock a wallet to block further
+spending (useful for fraud holds).
+
+### Admin transfer
+
+```
+POST /terawallet/v1/admin/transfer
+```
+
+Move balance between two users on the customer's behalf.
+
+---
+
+## Settings & system endpoints
+
+| Endpoint | Description |
+| --- | --- |
+| `GET /terawallet/v1/settings` | Fetch all plugin settings. |
+| `POST /terawallet/v1/settings/section` | Save a settings section (`section_id` + fields). |
+| `POST /terawallet/v1/settings/js-section` | Save a JS-registered settings tab (sanitized per server whitelist). |
+| `GET /terawallet/v1/system/multicurrency` | Active currency provider, base/active currencies and ledger mode. |
+| `GET /terawallet/v1/settings/public` | Unauthenticated public settings (e.g. cashback rules). |
 
 <Info>
-  All API responses are returned in JSON format. Ensure your request headers include `Content-Type: application/json`.
+  All responses are JSON. Send `Content-Type: application/json` on requests with a body, and an
+  `Idempotency-Key` header on top-ups, transfers and bulk operations.
 </Info>
+
+## Legacy namespace (deprecated)
+
+The `wc/v3/wallet/*` routes from earlier versions remain as thin proxies for back-compatibility
+and emit the same row shapes as their `terawallet/v1` equivalents. **Do not build new
+integrations against them** — migrate to `terawallet/v1`.

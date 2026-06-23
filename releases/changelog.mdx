@@ -1,0 +1,87 @@
+---
+title: "Release Notes"
+description: "What's new in TeraWallet — a release-by-release summary of features, improvements, fixes and security hardening."
+---
+
+A user-friendly summary of recent TeraWallet releases. For the complete, verbatim developer
+changelog, see `changelog.txt` in the plugin package.
+
+<Update label="v1.6.4" description="June 10, 2026">
+  **New**
+  - **Dashboard summary cards.** The customer wallet dashboard now shows a row of cards above the
+    transaction list — **Total top-ups**, **Total spent** (full wallet payments *and* partial
+    payments), **Cashback earned** (only when the cashback program is enabled) and **Available
+    balance**. Add-ons can register their own cards (e.g. "Total withdrawn") via the new
+    `woo_wallet_dashboard_stat_cards` filter.
+  - **Partial payment tax treatment.** A new setting lets you choose **Wallet pays goods only**
+    (default) or **Wallet pays the whole order including tax**, resolving long-standing reports of
+    tax staying on the full order. See [Partial & Combined Payments](/user-guide/partial-payments).
+  - **Proportional partial refunds.** Partial wallet payments are now refunded proportionally when
+    you issue a *partial* WooCommerce refund (previously only full cancellations refunded the
+    wallet). Opt out per store, or override the amount with `woo_wallet_partial_payment_refund_amount`.
+  - **"Deduct wallet balance" timing.** Choose to deduct at order placement (default) or **when
+    payment completes**, so abandoned or failed orders never leave the wallet debited.
+  - **Better wallet emails.** Both wallet emails support WooCommerce's **Additional content** box,
+    are grouped under **Payments** in WooCommerce 10.3+, and now include action buttons ("View your
+    wallet" / "Recharge your wallet now").
+
+  **Improvements**
+  - Partial-payment refunds reverse the exact base-currency amount originally debited — no more
+    phantom FX gain/loss on multi-currency stores.
+  - The partial-payment debit is serialized by a per-order lock so concurrent gateway webhooks can't
+    double-debit.
+  - The transaction table's **Details** column now wraps instead of truncating, staying readable on
+    mobile.
+
+  **Fixes**
+  - Closed a silent over-cap where the displayed wallet amount and the actual debit could disagree.
+  - Fixed the plain-text transaction email showing the balance instead of the transacted amount.
+  - The low-balance email now fires once when the threshold is crossed, instead of on every debit.
+  - Corrected a typo in the low-balance email.
+  - Single-currency stores: a one-time upgrade normalizes leftover non-base ledger rows so the
+    spendable balance and the displayed balance always agree.
+
+  **Security**
+  - The My Account `wallet_action` parameter is now sanitized and allow-listed before dispatch
+    (filterable via `woo_wallet_allowed_dashboard_actions`).
+</Update>
+
+<Update label="v1.6.3" description="May 30, 2026">
+  - **Transaction category** is now a first-class, indexed column for cheap admin filters and
+    aggregations.
+  - New **Transaction descriptions** settings tab with per-category templates and tokens
+    (`{order_id}`, `{amount}`, `{user_name}`, `{currency}`, `{original_details}`).
+  - A filterable PHP registry of canonical categories so add-ons can register their own kinds.
+  - CSV export now includes the `category` column.
+  - Hardening: category templates are HTML-stripped (no stored XSS), and unknown category slugs
+    collapse to `other`.
+</Update>
+
+<Update label="v1.6.2" description="May 25, 2026">
+  - **Referrals** activity now lives in a dedicated `woo_wallet_referrals` table with a full audit
+    trail, a customer referral history view, and a new admin **Referral Report** (filters, summary,
+    CSV export).
+  - Signup and referral bonuses are now credited for users created via SSO/SAML, social login, the
+    REST API, WP-CLI and programmatic `wp_insert_user()`.
+  - Referral bonuses are credited in the store base currency; the "Minimum Order Amount" setting was
+    clarified to **Minimum Spend**.
+  - Concurrency and idempotency hardening across bulk admin credit/debit and signup capture.
+</Update>
+
+<Update label="v1.6.1" description="May 20, 2026">
+  - New **cashback cap scope** setting: apply the cap **per order** or **per item**.
+  - New **cashback clawback on refund** (off by default) with an allow-negative option and override
+    filters.
+  - A **cashback expiry seam** (`woo_wallet_cashback_expiry_timestamp`) for Pro/add-ons.
+  - REST transactions expose a typed `category` field and accept a `category=` filter.
+  - The **Delete Logs** admin action now opens a modal to choose delete mode (soft/hard) and balance
+    handling (keep/wipe).
+  - The React **Actions** tab was unified with the standard settings flow.
+</Update>
+
+<Update label="v1.6.0" description="May 04, 2026">
+  - A brand-new **React settings interface** with a typed field registry and REST-backed save/load.
+  - First-class **multi-currency** support with adapters for WOOCS/FOX, WPML/WCML, CURCY, Aelia and
+    YayCurrency, plus a generic fallback — with per-row currency audit columns for accurate
+    historical reporting.
+</Update>

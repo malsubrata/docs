@@ -1,0 +1,62 @@
+---
+title: "Pro Hooks & REST API"
+description: "Developer reference for TeraWallet Pro — module hooks, withdrawal/coupon/import filters, and the Pro REST endpoints."
+---
+
+This page covers the developer surface added by **TeraWallet Pro**. For the core plugin's hooks and
+API, see the free [Hooks Reference](/developer-guide/hooks) and [REST API Reference](/developer-guide/rest-api).
+
+## Hooks
+
+Each name below was verified against the Pro plugin source.
+
+| Hook | Type | Module | Purpose |
+| --- | --- | --- | --- |
+| `woo_wallet_withdrawal_loaded` | action | Withdrawal | Fires when the withdrawal module is ready. |
+| `woo_wallet_withdrawal_payment_gateways` | filter | Withdrawal | Register or remove payout gateways. |
+| `woo_wallet_withdrawal_payment_gateway_settings` | filter | Withdrawal | Modify a gateway's settings fields. |
+| `woo_wallet_withdrawable_amount` | filter | Withdrawal | Control how much a user is allowed to withdraw. |
+| `woo_wallet_withdrawal_gateway_charge` | filter | Withdrawal | Override the calculated per-gateway processing fee. |
+| `woo_wallet_coupons_loaded` | action | Coupon | Fires when the coupon system is initialized. |
+| `woo_wallet_current_balance` | filter | Credit Expiry | Core filter the expiry module uses (priority 999) to exclude expired/redeemed credit. |
+| `woo_wallet_import_batch_size` | filter | Importer | Adjust the number of CSV rows processed per batch. |
+| `woo_wallet_rest_check_permissions` | filter | Importer | Override the capability check on Pro REST endpoints. |
+| `affwp_payout_methods` | filter | AffiliateWP | Inject the "Wallet Payout" method into AffiliateWP. |
+
+### Example: cap the withdrawable amount
+
+```php
+add_filter( 'woo_wallet_withdrawable_amount', function( $amount, $user_id ) {
+    // Never allow withdrawing more than 500 at a time.
+    return min( (float) $amount, 500 );
+}, 10, 2 );
+```
+
+## REST API
+
+Pro adds endpoints under two namespaces. Verify exact routes/args against the plugin source before
+building against them.
+
+### Coupons — `terawallet/v1/coupons`
+
+Full CRUD plus **bulk create** and **code generation** for wallet coupons. Used by the in-admin bulk
+generator and available for your own automation. Requires the appropriate management capability.
+
+### Importer — `woo-wallet-pro/v1/import`
+
+| Route | Purpose |
+| --- | --- |
+| `POST /woo-wallet-pro/v1/import/upload` | Upload a CSV; returns an `import_id` (attachment id). File paths never travel through the client. |
+| `POST /woo-wallet-pro/v1/import/process` | Process the next batch of rows for an import session. |
+| `GET /woo-wallet-pro/v1/import/messages` | Fetch progress/result messages for a session. |
+| `GET /woo-wallet-pro/v1/import/currencies` | List valid currencies for the `currency` column. |
+
+Every import route requires `manage_options` (filterable via `woo_wallet_rest_check_permissions`),
+and sessions are pinned to the uploading user.
+
+### Withdrawal webhooks — `terawallet/v1`
+
+Asynchronous payout webhooks for Stripe, PayPal, Razorpay, Cashfree and Paystack live under the
+`terawallet/v1` namespace, with provider signature verification and replay protection. The Stripe
+endpoint is `POST /wp-json/terawallet/v1/stripe/webhook` (set the webhook secret in the gateway's
+settings to enable it).
