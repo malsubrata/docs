@@ -112,6 +112,7 @@
             "group": "Features",
             "pages": [
               "pro/withdrawal",
+              "pro/paypal-withdrawal",
               "pro/wallet-expiry",
               "pro/wallet-coupons",
               "pro/importer",

@@ -11,7 +11,7 @@ of six gateways.
 
 | Gateway | Notes |
 | --- | --- |
-| **PayPal** | Payouts API. Loads for any store currency. |
+| **PayPal** | Payouts API. Loads for any store currency. See the [PayPal setup guide](/pro/paypal-withdrawal). |
 | **Stripe** | Stripe Transfers. Loads for any currency. Supports asynchronous webhook updates. |
 | **BACS** (Bank Transfer) | Manual bank transfer; you mark requests paid after sending. Loads for any currency. |
 | **Razorpay** (RazorpayX) | `INR` only. |
@@ -56,15 +56,15 @@ Amount**:
 4. They receive a **request submitted** email, and **approval** or **rejection** emails as the
    request progresses.
 
-A request moves through **pending → approved (paid)** or **rejected**. On approval the wallet is
-debited and the payout is sent; idempotency keys ensure re-approving a request can never pay twice.
+The wallet is debited the requested amount when the request is submitted. A request then moves through
+**pending → approved (paid)** or **rejected**. On approval the payout is sent; on rejection the debit is
+reversed and the balance is restored. Idempotency keys ensure re-approving a request can never pay twice.
 
 ## Managing requests
 
 Withdrawal requests are stored as their own admin list. For each request you can:
 
-- **Approve** or **Reject** it (rejection returns nothing from the wallet, since the debit happens on
-  approval).
+- **Approve** or **Reject** it (rejection reverses the debit made at submission, restoring the customer's balance).
 - Add **notes** — private (staff-only) or customer-visible, like WooCommerce order notes.
 - Review **per-withdrawal gateway logs** when logging is enabled.
 
