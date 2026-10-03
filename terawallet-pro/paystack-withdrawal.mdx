@@ -1,0 +1,150 @@
+---
+title: "Paystack Withdrawal Setup"
+description: "Step-by-step guide to paying out TeraWallet Pro withdrawals through Paystack Transfers in NGN, GHS, ZAR, KES, USD, EUR and GBP: secret key, webhook, transfer settings and testing."
+---
+
+This guide connects **Paystack Transfers** to the TeraWallet Pro [Wallet Withdrawal](/terawallet-pro/withdrawal)
+module, so approved withdrawals are paid to customers' bank or mobile-money accounts.
+
+<Info>
+  The Paystack gateway appears **only when your store currency is one of NGN, GHS, ZAR, KES, USD, EUR or
+  GBP**. Which payout types your Paystack account can actually use depends on its country and what
+  Paystack has enabled for it.
+</Info>
+
+## How it works
+
+1. A customer saves their account details. TeraWallet registers them with Paystack as a **transfer
+   recipient** and keeps the recipient code.
+2. They request a withdrawal; the wallet is debited the **requested** amount.
+3. On approval (automatic, or by you), TeraWallet creates a Paystack **transfer** from your Paystack
+   balance for `amount − fee`.
+4. If Paystack accepts the transfer, the request is marked **Approved** straight away.
+5. Webhooks report the final result. A failed transfer cancels the request and restores the customer's balance.
+
+## Step 1 — Get your Paystack secret key
+
+1. Sign in to the [Paystack Dashboard](https://dashboard.paystack.com).
+2. Go to **Settings → API Keys & Webhooks**.
+3. Copy the **Secret Key**. Test keys start with `sk_test_` and live keys with `sk_live_`.
+
+Only the secret key is needed. There is no separate sandbox switch: test or live mode is decided by the key
+you paste.
+
+## Step 2 — Allow transfers over the API
+
+Paystack settings control whether transfers sent by API are paid automatically.
+
+- Make sure **Transfers** are enabled on your Paystack account.
+- In the dashboard's transfer settings, turn **off** the requirement to confirm transfers with an OTP, which
+  would otherwise hold every API transfer for manual confirmation.
+- Keep enough balance in your Paystack account. Transfers are paid from it.
+
+<Note>
+  Menu names in the Paystack dashboard change from time to time. If you can't find an item, check
+  Paystack's Transfers documentation.
+</Note>
+
+## Step 3 — Configure TeraWallet
+
+Go to **TeraWallet → Settings → Withdrawal**. Turn on **Enable Withdrawal**, choose the **Approval Mode**
+(use *Manual* while testing) and turn on **Enable logging** during setup. Then, under Paystack:
+
+| Setting | What to do |
+| --- | --- |
+| **Enable Paystack** | Turn on. |
+| **Secret Key** | Paste from Step 1. |
+| **Enable Processing Fee**, **Fee Type**, **Fee Amount**, **Fixed Component** | Optional. The fee is deducted from the transfer: the wallet is debited the requested amount and the customer receives `amount − fee`. |
+
+<Warning>
+  Enter the secret key **before** customers save their details. The list of banks and the recipient
+  registration both need it. Customers who saved details earlier will have to save them again.
+</Warning>
+
+## Step 4 — Register the webhook
+
+1. In Paystack, go to **Settings → API Keys & Webhooks**.
+2. Set the **Webhook URL** to:
+
+   ```
+   https://your-site.com/wp-json/terawallet/v1/paystack/webhook
+   ```
+
+   Paystack has one webhook URL per mode (test and live), so set it in each mode you use.
+3. Save. There is no separate secret to copy: TeraWallet verifies each request's `x-paystack-signature`
+   using your **Secret Key**.
+
+   | Event | Effect in TeraWallet |
+   | --- | --- |
+   | `transfer.success` | Marks the request **Approved** (if not already) and adds a note. |
+   | `transfer.failed` | Cancels the request and restores the balance. |
+   | `transfer.reversed` | Adds a note only: **"Manual reconciliation required."** The request is not cancelled automatically. |
+
+   Other events are ignored. Paystack sends all transfer events to the one URL, so there is nothing to
+   subscribe to.
+
+## Step 5 — What customers need to do
+
+Customers go to **My Account → Wallet → Withdrawal → Payment Settings**, choose **Paystack** and enter:
+
+| Field | Notes |
+| --- | --- |
+| **Name** | Account holder name. |
+| **Number** | Bank account number, or mobile-money number depending on your currency. |
+| **Bank** | Pick from the list loaded from Paystack for your currency. |
+
+The kind of account TeraWallet registers depends on your store currency:
+
+| Currency | Account type |
+| --- | --- |
+| NGN (and any currency not listed below) | Nigerian bank account (`nuban`) |
+| GHS, KES | Mobile money |
+| ZAR | South African bank account (`basa`) |
+
+<Warning>
+  If the **Bank** list is empty, the secret key is missing or Paystack doesn't offer that payout type for
+  your currency. Check the key and look at the log.
+</Warning>
+
+## Step 6 — Test
+
+1. Use a test secret key (`sk_test_…`) and set the webhook in Paystack's **test** mode.
+2. As a test customer, save account details, add balance and submit a withdrawal.
+3. Approve it in **wp-admin**.
+4. The request should show **Approved** with a note like "Paystack transfer queued (transfer_code: TRF_…, reference: ww_paystack_123)".
+5. Confirm the webhook adds the "Paystack confirmed transfer.success." note, or cancels the request on a failure.
+
+## Go live checklist
+
+- [ ] Paystack account activated for live transfers, with sufficient balance
+- [ ] OTP confirmation for transfers turned off
+- [ ] Live **Secret Key** (`sk_live_…`) pasted
+- [ ] Live webhook URL saved in Paystack
+- [ ] **Enable logging** turned off
+- [ ] One small real withdrawal tested end to end
+
+## Duplicate-payment protection
+
+Each transfer uses a fixed reference (`ww_paystack_<withdrawal id>`). Paystack rejects a second transfer with
+the same reference, so a retry can't pay twice.
+
+## Troubleshooting
+
+Enable **Enable logging** and open the request to see its log. Failure reasons are also saved as notes.
+
+| Symptom / message | Likely cause |
+| --- | --- |
+| "Paystack" isn't in the gateway list | Store currency isn't supported. |
+| Bank list is empty | Secret key missing or wrong, or the account type isn't offered for your currency. |
+| "Unable to approve request please check log file" | The customer has no recipient code (details were saved before the key was set, or registration failed), or the secret key is empty. Ask the customer to save again, and read the log. |
+| "Paystack transfer rejected (HTTP …): …" | Paystack's own error, such as insufficient balance or transfers not enabled for the account. |
+| Transfer stuck at pending | OTP confirmation is on, or the bank is processing. |
+| "transfer.reversed … Manual reconciliation required." | The money came back to your Paystack balance. Decide whether to refund the customer by rejecting the request. |
+| Webhook 500 `missing_secret` / 401 `invalid_signature` | Secret key empty, or the webhook was sent from the other mode (test vs live). |
+
+<Tip>
+  If your host or a security plugin blocks unauthenticated REST requests, allow
+  `POST /wp-json/terawallet/v1/paystack/webhook`.
+</Tip>
+
+See [Pro Hooks & REST API](/terawallet-pro/hooks) for the full reference.

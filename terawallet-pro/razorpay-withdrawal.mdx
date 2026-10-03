@@ -1,0 +1,145 @@
+---
+title: "Razorpay (RazorpayX) Withdrawal Setup"
+description: "Step-by-step guide to paying out TeraWallet Pro withdrawals to Indian bank accounts through RazorpayX Payouts: API keys, account number, transfer mode, webhook and testing."
+---
+
+This guide connects **RazorpayX Payouts** to the TeraWallet Pro [Wallet Withdrawal](/terawallet-pro/withdrawal)
+module, so approved withdrawals are paid to customers' Indian bank accounts by IMPS, NEFT or RTGS.
+
+<Info>
+  The Razorpay gateway appears **only when your store currency is INR**. It needs a **RazorpayX** account
+  (Razorpay's payouts product), not just a standard Razorpay payment-gateway account.
+</Info>
+
+## How it works
+
+1. A customer saves their bank details. TeraWallet registers them with RazorpayX as a **Contact** and a
+   **Fund Account** and remembers the IDs.
+2. They request a withdrawal; the wallet is debited the **requested** amount.
+3. On approval (automatic, or by you), TeraWallet creates a RazorpayX **payout** for `amount − fee`
+   from your RazorpayX account.
+4. If RazorpayX accepts the payout, the request is marked **Approved** straight away. A payout that
+   can't be funded yet is queued by RazorpayX rather than rejected.
+5. Webhooks report progress. A failed or reversed payout cancels the request and restores the
+   customer's balance.
+
+## Step 1 — Get your RazorpayX details
+
+In the RazorpayX dashboard:
+
+1. Open **Developer Controls** (or **Settings → API Keys**) and generate an **API Key** and **Secret**.
+   Test keys start with `rzp_test_` and live keys with `rzp_live_`.
+2. Open **My Account & Settings** and copy your **RazorpayX account number**. This is the virtual
+   account payouts are paid from (not your bank account number).
+3. Make sure the account has funds. Payouts are drawn from this balance.
+
+## Step 2 — Configure TeraWallet
+
+Go to **TeraWallet → Settings → Withdrawal**. Turn on **Enable Withdrawal**, choose the **Approval Mode**
+(use *Manual* while testing) and turn on **Enable logging** during setup. Then, under Razorpay:
+
+| Setting | What to do |
+| --- | --- |
+| **Enable Razorpay** | Turn on. |
+| **Enable Razorpay Test Mode** | Tick while using test keys. |
+| **Razorpay API Key** | `rzp_test_…` or `rzp_live_…` from Step 1. |
+| **Razorpay API Secret** | The secret for that key. |
+| **RazorpayX Account Number** | From Step 1. |
+| **Transfer Mode** | *IMPS* (fastest), *NEFT* or *RTGS*. One mode is used for all payouts. |
+| **Razorpay Webhook Secret** | Filled in during Step 3. |
+| **Enable Processing Fee**, **Fee Type**, **Fee Amount**, **Fixed Component** | Optional. The fee is deducted from the payout: the wallet is debited the requested amount and the customer receives `amount − fee`. |
+
+<Warning>
+  Enter the API keys **before** customers save their bank details. TeraWallet registers the Contact and
+  Fund Account at the moment a customer saves, and skips this if the keys are missing. Customers who
+  saved details earlier have to save them again.
+</Warning>
+
+<Note>
+  Test or live mode is decided by the API key you use. Keep the key, secret and account number all from
+  the same mode.
+</Note>
+
+## Step 3 — Register the webhook
+
+1. In RazorpayX, go to **Developer Controls → Webhooks → Add New Webhook**.
+2. Set the **Webhook URL** to:
+
+   ```
+   https://your-site.com/wp-json/terawallet/v1/razorpay/webhook
+   ```
+3. Choose a **Secret** and paste the same value into **Razorpay Webhook Secret** in TeraWallet.
+4. Subscribe to these events:
+
+   | Event | Effect in TeraWallet |
+   | --- | --- |
+   | `payout.processed` | Marks the request **Approved** (if not already) and adds a note. |
+   | `payout.failed` | Cancels the request and restores the balance. |
+   | `payout.reversed` | Cancels the request and restores the balance. |
+   | `payout.queued`, `payout.pending`, `payout.initiated`, `payout.updated` | Adds a status note only. |
+
+   Other events are ignored.
+
+<Note>
+  Each request is checked against the `X-Razorpay-Signature` header using your webhook secret. A missing
+  secret returns an error and a wrong signature is rejected, so no withdrawal changes.
+</Note>
+
+## Step 4 — What customers need to do
+
+Customers go to **My Account → Wallet → Withdrawal → Payment Settings**, choose **Razorpay** and enter:
+
+| Field | Rules |
+| --- | --- |
+| **Account Holder Name** | Required. |
+| **IFSC Code** | Required. 11 characters, such as `HDFC0001234`. |
+| **Bank Account Number** | Required. 4–26 letters and digits. |
+| **Contact Phone** | Optional. |
+
+Invalid details are rejected with a message. If a customer later changes their name, IFSC or account number,
+the old RazorpayX records are dropped and new ones are created. Without a registered fund account, the
+withdrawal form tells them to set up their details first.
+
+## Step 5 — Test
+
+1. Use test keys, tick **Enable Razorpay Test Mode** and set the test webhook.
+2. As a test customer, save bank details, add balance and submit a withdrawal.
+3. Approve it in **wp-admin**.
+4. The request should show **Approved** with a note like "RazorpayX payout queued (payout_id: …)".
+5. Use the RazorpayX dashboard (or the test-mode payout actions) to move the payout to processed or failed
+   and confirm the webhook updates the request.
+
+## Go live checklist
+
+- [ ] RazorpayX account active and funded
+- [ ] **Test Mode** unticked and live API key, secret and account number pasted
+- [ ] A **live webhook** created, with the same secret saved in TeraWallet
+- [ ] **Transfer Mode** suits your payout sizes (use RTGS for large amounts, and check RazorpayX's limits for each mode)
+- [ ] **Enable logging** turned off
+- [ ] One small real withdrawal tested end to end
+
+## Duplicate-payment protection
+
+Each payout is sent with a stored unique idempotency key, and the payout ID is saved on the request. A retry
+after a timeout is recognised by RazorpayX as the same payout and can't pay twice.
+
+## Troubleshooting
+
+Enable **Enable logging** and open the request to see its log. Failure reasons are also saved as notes.
+
+| Symptom / message | Likely cause |
+| --- | --- |
+| "Razorpay" isn't in the gateway list | Store currency isn't INR. |
+| Customer is told to set up their account | No fund account was registered. Keys were missing when they saved, or registration failed. Ask them to save again. |
+| "Could not register RazorpayX contact/fund account: …" | RazorpayX rejected the details or the keys. Check the keys and the message. |
+| "RazorpayX payout rejected (HTTP …): …" | RazorpayX's own error, such as a wrong account number or key from another mode. |
+| "Unable to approve request please check log file" | Credentials, account number or the customer's fund account is missing. See the log. |
+| Request Approved but money late | The payout may be queued for low balance. Fund the account and watch the webhook notes. |
+| Webhook 500 `missing_secret` / 401 `invalid_signature` | Webhook Secret is empty, or doesn't match the one set in RazorpayX. |
+
+<Tip>
+  If your host or a security plugin blocks unauthenticated REST requests, allow
+  `POST /wp-json/terawallet/v1/razorpay/webhook`.
+</Tip>
+
+See [Pro Hooks & REST API](/terawallet-pro/hooks) for the full reference.

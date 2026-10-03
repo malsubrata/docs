@@ -1,0 +1,136 @@
+---
+title: "Cashfree Withdrawal Setup"
+description: "Step-by-step guide to paying out TeraWallet Pro withdrawals to Indian bank accounts through Cashfree Payouts: API credentials, sandbox testing, webhook and go-live checklist."
+---
+
+This guide connects **Cashfree Payouts** (v2 API) to the TeraWallet Pro [Wallet Withdrawal](/terawallet-pro/withdrawal)
+module, so approved withdrawals are transferred to customers' Indian bank accounts.
+
+<Info>
+  The Cashfree gateway appears **only when your store currency is INR**. It needs a **Cashfree Payouts**
+  account, which is separate from a Cashfree payment-gateway account.
+</Info>
+
+## How it works
+
+1. A customer saves their bank details. TeraWallet registers them with Cashfree as a **beneficiary**
+   (ID `ww_user_<user id>`).
+2. They request a withdrawal; the wallet is debited the **requested** amount.
+3. On approval (automatic, or by you), TeraWallet creates a Cashfree **transfer** (bank transfer, INR) for
+   `amount − fee`.
+4. If Cashfree accepts the transfer (status `SUCCESS`, `RECEIVED`, `PENDING` or `APPROVAL_PENDING`), the
+   request is marked **Approved** straight away.
+5. Webhooks report the final result. A failed, rejected or reversed transfer cancels the request and
+   restores the customer's balance.
+
+## Step 1 — Get your Cashfree credentials
+
+In the Cashfree Payouts dashboard:
+
+1. Open **Developers → API Keys** (the Payouts section) and generate a **Client ID** and **Client Secret**.
+   Sandbox and production have separate credentials.
+2. If Cashfree asks you to **whitelist IP addresses** for API access, add your server's outgoing IP.
+3. Make sure the Payouts balance is funded. Transfers are drawn from it.
+
+<Note>
+  Menu names in the Cashfree dashboard change from time to time. If you can't find an item, search the
+  dashboard for "API keys" or "webhooks" or check Cashfree's Payouts documentation.
+</Note>
+
+## Step 2 — Configure TeraWallet
+
+Go to **TeraWallet → Settings → Withdrawal**. Turn on **Enable Withdrawal**, choose the **Approval Mode**
+(use *Manual* while testing) and turn on **Enable logging** during setup. Then, under Cashfree:
+
+| Setting | What to do |
+| --- | --- |
+| **Enable Cashfree** | Turn on. |
+| **Enable Cashfree sandbox** | Tick while using sandbox credentials. |
+| **Cashfree Client ID** | From Step 1. |
+| **Cashfree Client Secret** | From Step 1. Also used to verify webhooks. |
+| **Enable Processing Fee**, **Fee Type**, **Fee Amount**, **Fixed Component** | Optional. The fee is deducted from the transfer: the wallet is debited the requested amount and the customer receives `amount − fee`. |
+
+<Warning>
+  Enter the credentials **before** customers save their bank details. Beneficiary registration happens when
+  they save, and fails without credentials.
+</Warning>
+
+## Step 3 — Register the webhook
+
+1. In the Cashfree Payouts dashboard, open the **Webhooks** settings.
+2. Set the webhook URL to:
+
+   ```
+   https://your-site.com/wp-json/terawallet/v1/cashfree/webhook
+   ```
+3. Enable the transfer events below, and save.
+
+   | Event | Effect in TeraWallet |
+   | --- | --- |
+   | `TRANSFER_SUCCESS` | Marks the request **Approved** (if not already), saves the bank reference (UTR) and adds a note. |
+   | `TRANSFER_FAILED` | Cancels the request and restores the balance. |
+   | `TRANSFER_REJECTED` | Cancels the request and restores the balance. |
+   | `TRANSFER_REVERSED` | Cancels the request and restores the balance. |
+   | `TRANSFER_ACKNOWLEDGED` | Adds a status note only. |
+
+There is no separate webhook secret to copy. TeraWallet verifies each request's signature
+(`x-webhook-signature`, with `x-webhook-timestamp`) using your **Client Secret**. Requests with a missing
+or wrong signature are rejected.
+
+## Step 4 — What customers need to do
+
+Customers go to **My Account → Wallet → Withdrawal → Payment Settings**, choose **Cashfree** and enter:
+
+| Field | Rules |
+| --- | --- |
+| **Bank account holder name** | Required. |
+| **Bank account number** | Required. 8–18 digits. |
+| **IFSC code** | Required. Format `ABCD0XXXXXX`. |
+| **Phone** | Required. International format with 10–15 digits, such as `+919999999999`. |
+
+Invalid values are rejected with a message. On success the customer sees "Cashfree beneficiary
+registered." Without a registered beneficiary, the withdrawal form tells them to register their bank
+account first.
+
+## Step 5 — Test in sandbox
+
+1. Tick **Enable Cashfree sandbox** and use sandbox credentials.
+2. As a test customer, save bank details, add balance and submit a withdrawal.
+3. Approve it in **wp-admin** (or use Automatic mode).
+4. The request should show **Approved** with a note like "Cashfree transfer ww_cf_123 queued (status: …)".
+5. Confirm the webhook updates the request when Cashfree reports the final status.
+
+## Go live checklist
+
+- [ ] Payouts account activated and funded for production
+- [ ] Server IP whitelisted, if Cashfree requires it
+- [ ] **Sandbox** unticked and production Client ID and Secret pasted
+- [ ] Production webhook URL saved in Cashfree
+- [ ] **Enable logging** turned off
+- [ ] One small real withdrawal tested end to end
+
+## Duplicate-payment protection
+
+Each transfer has a fixed ID (`ww_cf_<withdrawal id>`) that is also sent as an idempotency key. TeraWallet also
+saves it on the request and skips creating another transfer if one exists. Re-approving can't pay twice.
+
+## Troubleshooting
+
+Enable **Enable logging** and open the request to see its log. Failure reasons are also saved as notes.
+
+| Symptom / message | Likely cause |
+| --- | --- |
+| "Cashfree" isn't in the gateway list | Store currency isn't INR. |
+| "Click here to register your Cashfree bank account." | No beneficiary was registered. Credentials were missing, or registration failed. Ask the customer to save again. |
+| "Invalid IFSC code" / "Invalid bank account number" / "Invalid phone number" | Details are in the wrong format. |
+| "Cashfree credentials are not configured." | Client ID or Secret is empty. |
+| "Cashfree transfer failed (…): …" | Cashfree's own error, such as insufficient balance, IP not whitelisted, or an invalid account. |
+| Transfer stays pending | Cashfree may need approval in its dashboard (`APPROVAL_PENDING`) or the bank is processing. The webhook will update it. |
+| Webhook 500 `missing_secret` / 401 `invalid_signature` | Client Secret empty, or webhook is sent by a different account or mode. |
+
+<Tip>
+  If your host or a security plugin blocks unauthenticated REST requests, allow
+  `POST /wp-json/terawallet/v1/cashfree/webhook`.
+</Tip>
+
+See [Pro Hooks & REST API](/terawallet-pro/hooks) for the full reference.

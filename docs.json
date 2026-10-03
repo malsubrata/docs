@@ -136,7 +136,11 @@
                 "group": "Payout Gateways",
                 "pages": [
                   "terawallet-pro/paypal-withdrawal",
-                "terawallet-pro/stripe-withdrawal"
+                  "terawallet-pro/stripe-withdrawal",
+                  "terawallet-pro/razorpay-withdrawal",
+                  "terawallet-pro/cashfree-withdrawal",
+                  "terawallet-pro/paystack-withdrawal",
+                  "terawallet-pro/bacs-withdrawal"
                 ]
               }
             ]

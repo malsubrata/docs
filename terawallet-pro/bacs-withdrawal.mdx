@@ -1,0 +1,90 @@
+---
+title: "Bank Transfer (BACS) Withdrawal Setup"
+description: "Set up manual bank-transfer withdrawals in TeraWallet Pro: choose the bank fields customers fill in, review requests, pay by hand from your bank, and mark them approved."
+---
+
+**Bank Transfer (BACS)** is the manual payout option in the TeraWallet Pro [Wallet Withdrawal](/terawallet-pro/withdrawal)
+module. There is no payment provider or API: customers give their bank details, you send the money from
+your own bank, then mark the request **Approved**. It works with any currency and any country.
+
+<Info>
+  BACS is **never automatic**, even if **Approval Mode** is set to *Automatic (instant)*. Requests always
+  wait as **Pending** until you approve them.
+</Info>
+
+## How it works
+
+1. The customer saves their bank details once and requests a withdrawal. The wallet is debited the
+   **requested** amount straight away.
+2. The request appears in **Pending** with the customer's bank details and the **Payable Amount**
+   (requested amount minus any fee).
+3. You send that amount from your bank.
+4. You click **Approve**. TeraWallet marks the request paid and emails the customer. No money moves
+   from TeraWallet itself.
+5. If you can't pay, click **Reject**. The debit is reversed and the balance goes back to the customer.
+
+## Step 1 — Enable the gateway
+
+Go to **TeraWallet → Settings → Withdrawal**, turn on **Enable Withdrawal**, then turn on **Enable Bank
+transfer** (the BACS gateway).
+
+## Step 2 — Choose the bank fields
+
+Use **Bank account fields** to pick which fields customers see. Leave it empty to show all of them.
+
+| Field | Notes |
+| --- | --- |
+| **Account name** | Always shown and required. |
+| **Account number** | Always shown and required. |
+| **Sort code** | The label adapts to your store's base country: BSB (AU), Bank transit number (CA), IFSC (IN), Branch sort (IT), Bank code (NZ, SE), Routing number (US), Branch code (ZA). |
+| **Bank name** | Optional. |
+| **Routing number** | Optional. |
+| **IBAN** | Checked for shape (15–34 letters and digits). |
+| **Swift code** | Must be 8 or 11 letters and digits. |
+
+Only pick what your bank needs to make a transfer in your region. For example, a UK store might select
+sort code only, and a European store might select IBAN and SWIFT.
+
+## Step 3 — Set limits and a fee (optional)
+
+Set **Minimum / Maximum Withdrawal** as needed. To cover bank charges, turn on **Enable Processing Fee**
+and choose **Fee Type**, **Fee Amount** and **Fixed Component**. The fee is deducted from what you pay: the
+wallet is debited the requested amount and the **Payable Amount** is `requested − fee`.
+
+## Step 4 — What customers need to do
+
+Customers go to **My Account → Wallet → Withdrawal → Payment Settings**, choose **Bank transfer**, fill in
+the fields and save. Each field is limited to 200 characters, and an invalid IBAN or SWIFT is rejected
+with a message and not saved. If a customer submits a withdrawal without an account name and number, the
+form asks them to set up their bank details first.
+
+## Step 5 — Pay and approve requests
+
+1. Go to the **Withdrawal requests** list and open a pending request.
+2. Under **Payment Details**, copy the customer's bank details. **Requested Amount**, **Withdrawal Charge** and
+   **Payable Amount** are shown below.
+3. Make the transfer in your bank.
+4. Click **Approve**. For several at once, tick the requests in the list and use the **Approve** bulk action.
+5. Add a note (for example the bank reference) if you want a record. Notes can be private or visible to the customer.
+
+<Warning>
+  Only approve after the money has been sent. Approving does not send anything, it only records the
+  payment and notifies the customer.
+</Warning>
+
+## Troubleshooting
+
+| Symptom | Likely cause |
+| --- | --- |
+| Customer sees "Click here to setup bank account details" | Account name or number is missing in their saved details. |
+| "IBAN format looks invalid" / "SWIFT/BIC code must be 8 or 11 alphanumeric characters" | The customer entered the value in the wrong format. Check for typos. |
+| A field customers need isn't shown | It isn't ticked in **Bank account fields**. |
+| Sort code label is wrong | It follows your store's base country (WooCommerce → Settings → General). |
+| Request won't go from Pending to paid automatically | By design: BACS is always manual. |
+
+## Developer notes
+
+- Filter `woo_wallet_withdrawal_bacs_account` changes the list of bank fields.
+- Filter `woocommerce_get_bacs_locale` changes the country-specific sort-code labels.
+
+See [Pro Hooks & REST API](/terawallet-pro/hooks) for the full reference.

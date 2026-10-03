@@ -13,10 +13,10 @@ of six gateways.
 | --- | --- |
 | **PayPal** | Payouts API. Loads for any store currency. See the [PayPal setup guide](/terawallet-pro/paypal-withdrawal). |
 | **Stripe** | Stripe Transfers. Loads for any currency. Supports asynchronous webhook updates. See the [Stripe setup guide](/terawallet-pro/stripe-withdrawal). |
-| **BACS** (Bank Transfer) | Manual bank transfer; you mark requests paid after sending. Loads for any currency. |
-| **Razorpay** (RazorpayX) | `INR` only. |
-| **Cashfree** | Payouts v2 API. `INR` only. |
-| **Paystack** | `NGN`, `GHS`, `ZAR`, `KES`, `USD`, `EUR`, `GBP`. |
+| **BACS** (Bank Transfer) | Manual bank transfer; you mark requests paid after sending. Loads for any currency. See the [BACS setup guide](/terawallet-pro/bacs-withdrawal). |
+| **Razorpay** (RazorpayX) | `INR` only. See the [Razorpay setup guide](/terawallet-pro/razorpay-withdrawal). |
+| **Cashfree** | Payouts v2 API. `INR` only. See the [Cashfree setup guide](/terawallet-pro/cashfree-withdrawal). |
+| **Paystack** | `NGN`, `GHS`, `ZAR`, `KES`, `USD`, `EUR`, `GBP`. See the [Paystack setup guide](/terawallet-pro/paystack-withdrawal). |
 
 Currency-incompatible gateways are hidden automatically. Developers can register custom gateways via
 the `woo_wallet_withdrawal_payment_gateways` filter — see [Pro Hooks](/terawallet-pro/hooks).
