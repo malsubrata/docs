@@ -1,0 +1,179 @@
+---
+title: "Stripe Withdrawal Setup"
+description: "Step-by-step guide to paying out TeraWallet Pro withdrawals through Stripe Connect transfers: enable Connect, set the OAuth redirect URI, add API keys, register the webhook, and test in test mode."
+---
+
+This guide connects **Stripe Connect** to the TeraWallet Pro [Wallet Withdrawal](/terawallet-pro/withdrawal)
+module. Approved withdrawals are sent as Stripe **transfers** from your platform account to the
+customer's own connected Stripe account.
+
+<Info>
+  Requires TeraWallet Pro with the Withdrawal module active and a Stripe account with **Connect**
+  enabled. Unlike PayPal, each customer must first **connect their own Stripe account** to your store.
+  If your customers won't have Stripe accounts, consider [PayPal](/terawallet-pro/paypal-withdrawal) or
+  bank transfer (BACS) instead.
+</Info>
+
+## How it works
+
+1. A customer connects their Stripe account once (OAuth), which stores their Stripe account ID.
+2. They request a withdrawal; the wallet is debited the **requested** amount.
+3. On approval (automatic, or by you), TeraWallet creates a Stripe transfer for `amount − fee` to the
+   customer's connected account.
+4. If Stripe accepts the transfer, the request is marked **Approved** straight away.
+5. If the transfer is later reversed in Stripe, the webhook cancels the request and restores the
+   customer's balance.
+
+## Step 1 — Enable Stripe Connect
+
+1. Sign in to the [Stripe Dashboard](https://dashboard.stripe.com) and switch to **Test mode** to begin.
+2. Open **Settings → Connect** and complete the Connect onboarding for your platform.
+3. Under **Connect settings → Onboarding options → OAuth**, turn on **OAuth for Standard accounts** (or the
+   equivalent OAuth option your dashboard shows).
+4. Copy your **Client ID** (starts with `ca_`).
+
+## Step 2 — Add the redirect URI
+
+Stripe only returns customers to URLs you have allow-listed. In **Connect settings → OAuth → Redirects**, add
+the URL of your customers' **Payment Settings** page:
+
+```
+https://your-site.com/my-account/my-wallet/withdraw_settings/
+```
+
+- `my-wallet` is the default wallet endpoint. If you changed it in WooCommerce settings, use yours.
+- If your wallet is on a page using the `[woo-wallet]` shortcode instead of My Account, the URL is that
+  page with `?wallet_action=withdraw_settings`.
+- Open the Payment Settings page as a customer and copy the address from the browser to be sure it matches.
+
+<Warning>
+  If the redirect URI doesn't match exactly, Stripe shows an "invalid redirect_uri" error when customers
+  try to connect.
+</Warning>
+
+## Step 3 — Get your API keys
+
+In **Developers → API keys**, copy the **Publishable key** and **Secret key** for the same mode (test or
+live) as the Client ID above. Test and live keys are separate.
+
+## Step 4 — Configure TeraWallet
+
+Go to **TeraWallet → Settings → Withdrawal**.
+
+**General options:** turn on **Enable Withdrawal**, choose the **Approval Mode** (use *Manual* while
+testing), set optional **Minimum / Maximum Withdrawal**, and turn on **Enable logging** during setup. See
+[Wallet Withdrawal](/terawallet-pro/withdrawal) for details.
+
+**Stripe gateway options**
+
+| Setting | What to do |
+| --- | --- |
+| **Enable Stripe** | Turn on. |
+| **Mode** | *Sandbox / Test* or *Live / Production*, matching the keys. |
+| **Stripe client ID** | The `ca_…` ID from Step 1. |
+| **Stripe publishable key** | From Step 3. |
+| **Stripe secret key** | From Step 3. |
+| **Stripe webhook secret** | Filled in during Step 5. |
+| **Enable Processing Fee**, **Fee Type**, **Fee Amount**, **Fixed Component** | Optional. The fee is deducted from the transfer, not added to the debit: the wallet is debited the requested amount and the customer receives `amount − fee`. |
+
+Save your changes.
+
+## Step 5 — Register the webhook
+
+1. In Stripe, go to **Developers → Webhooks → Add endpoint**.
+2. Set the **Endpoint URL** to:
+
+   ```
+   https://your-site.com/wp-json/terawallet/v1/stripe/webhook
+   ```
+
+   The same URL is shown under the webhook secret field in TeraWallet.
+3. Select the event **`transfer.reversed`**.
+4. Save, then reveal the **Signing secret** (starts with `whsec_`) and paste it into **Stripe webhook
+   secret** in TeraWallet.
+
+The only event acted on is `transfer.reversed`: the request is cancelled and the customer's balance is
+restored. Because a successful transfer is approved immediately, no "success" event is needed. Other
+events are acknowledged and ignored.
+
+<Note>
+  Each webhook's signature is verified, and requests older than five minutes or with a bad signature are
+  rejected. A replayed event is ignored, so a request is never cancelled twice. If the secret is empty,
+  the endpoint returns an error and reversals will not be picked up.
+</Note>
+
+## Step 6 — Fund your platform balance
+
+Transfers are paid out of your **Stripe platform balance** in the transfer's currency. Make sure the balance
+can cover pending withdrawals. In test mode, Stripe's test card `4000 0000 0000 0077` adds available funds
+to your balance.
+
+## Step 7 — What customers need to do
+
+Customers connect once under **My Account → Wallet → Withdrawal → Payment Settings** by clicking
+**Connect with Stripe**, then signing in or creating a Stripe account and authorising it. They return to
+the settings page and see "You are now connected with Stripe." The same screen has a **Disconnect stripe
+account** button.
+
+If a customer hasn't connected, the withdrawal form tells them to connect before they can submit.
+
+## Step 8 — Test in test mode
+
+1. Set **Mode** to *Sandbox / Test* and use test keys, test client ID and a test webhook.
+2. As a test customer, click **Connect with Stripe** and finish the flow with a Stripe test account.
+3. Add wallet balance, then submit a withdrawal.
+4. Approve it in **wp-admin** (or use Automatic mode).
+5. The request should show **Approved** with a note "Stripe transfer initiated: tr_…". The transfer appears
+   in the Stripe Dashboard under **Connect → Transfers**.
+6. To test reversals, reverse the transfer in the dashboard, or use the Stripe CLI:
+
+   ```bash
+   stripe listen --forward-to https://your-site.com/wp-json/terawallet/v1/stripe/webhook
+   stripe trigger transfer.reversed
+   ```
+
+   A real reversal of an approved request should flip it to cancelled and restore the balance.
+
+## Go live checklist
+
+- [ ] Connect enabled and OAuth redirect URI added in **live** mode
+- [ ] **Mode** switched to *Live / Production*
+- [ ] Live **Client ID**, **Publishable key** and **Secret key** pasted
+- [ ] A **new live webhook** created for `transfer.reversed`, and its signing secret pasted
+- [ ] Platform balance funded
+- [ ] **Enable logging** turned off
+- [ ] One small real withdrawal tested end to end
+
+## Duplicate-payment protection
+
+Every transfer is sent with a fixed idempotency key based on the withdrawal ID. TeraWallet also stores the
+Stripe transfer ID on the request and skips creating a second transfer if one exists, even after Stripe's
+24-hour idempotency window. Re-approving a request therefore can't pay twice.
+
+## Currencies
+
+Amounts are converted to Stripe's smallest currency unit (for example, `10.50` becomes `1050`). Zero-decimal
+currencies such as JPY and KRW are sent as whole numbers.
+
+## Troubleshooting
+
+Enable **Enable logging** and open the request to see its log. Failure reasons are also saved as notes.
+
+| Symptom / message | Likely cause |
+| --- | --- |
+| "Click here to connect with Stripe" on the withdrawal form | The customer hasn't connected an account. |
+| "Security check failed." after connecting | The connect link expired or was opened by a different logged-in user. Have the customer click **Connect with Stripe** again. |
+| "Stripe connection failed." or an `invalid_grant` message | The OAuth code was used twice, or the secret key and client ID are from different modes. |
+| Stripe says invalid `redirect_uri` | The URL isn't allow-listed in Connect → OAuth → Redirects (Step 2). |
+| "Stripe secret key is not configured." | Secret key empty. |
+| "Stripe transfer failed (HTTP … / code): …" | Stripe's own error: commonly insufficient platform balance, an unsupported currency for the destination account, or a disconnected account. |
+| "Unable to approve request please check log file" | The transfer failed. See the note on the request. |
+| Webhook returns 500 `missing_secret` | **Stripe webhook secret** is empty. |
+| Webhook returns 400 `invalid_signature` | Wrong signing secret (test vs live, or another endpoint), or the server clock is more than five minutes off. |
+
+<Tip>
+  Hosts that block unauthenticated REST requests (security plugins, WAFs) can stop Stripe reaching the
+  webhook. Allow `POST /wp-json/terawallet/v1/stripe/webhook`.
+</Tip>
+
+See [Pro Hooks & REST API](/terawallet-pro/hooks) for the full reference.
