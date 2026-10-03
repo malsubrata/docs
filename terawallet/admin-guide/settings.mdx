@@ -11,7 +11,7 @@ This tab controls the fundamental behavior of the wallet system.
 
 - **Enable Partial Payment**: When active, customers can use their wallet balance for a portion of the total order.
 - **Is auto deduct for partial payment**: Automatically applies the customer's wallet balance as a discount if partial payment is enabled.
-- **Tax treatment** *(new in 1.6.4)*: Choose **Wallet pays goods only** (default) or **Wallet pays the whole order including tax**. See [Partial & Combined Payments](/user-guide/partial-payments#tax-treatment).
+- **Tax treatment** *(new in 1.6.4)*: Choose **Wallet pays goods only** (default) or **Wallet pays the whole order including tax**. See [Partial & Combined Payments](/terawallet/user-guide/partial-payments#tax-treatment).
 - **Deduct wallet balance** *(new in 1.6.4)*: Deduct the wallet portion **at order placement** (default) or **when payment completes**.
 - **Refund wallet on partial refunds** *(new in 1.6.4)*: Return a proportional share of the wallet payment when a partial WooCommerce refund is issued. On by default.
 - **Enable Wallet Transfer**: Allow users to transfer funds to other registered customers using their email address.
@@ -37,7 +37,7 @@ Configure how rewards are credited to users' wallets.
 - **Exclude Role from Cashback**: Select user roles (e.g., Administrator, Vendor) that should not receive rewards.
 - **Process Cashback Status**: Define which WooCommerce order statuses trigger the reward (e.g., Completed, Processing).
 
-See [Cashback Rules & Priority Logic](/cashback/rules-logic) for the full calculation model.
+See [Cashback Rules & Priority Logic](/terawallet/cashback/rules-logic) for the full calculation model.
 
 ### Transaction Descriptions
 
@@ -64,7 +64,7 @@ Incentivize user engagement by rewarding specific site actions:
 - **New User Registration**: Credit a specific amount to new users upon signing up. Since 1.6.2 this also covers users created via SSO/SAML, social login, the REST API and WP-CLI.
 - **Daily Visit**: Reward users for logging in once per day.
 - **Product Review**: Credit users for leaving verified reviews on your products.
-- **Referrals**: Reward customers for referring visitors and sign-ups. Activity is recorded in a dedicated referrals ledger with a customer history view and an admin [Referral Report](/admin-guide/transactions#referral-report).
+- **Referrals**: Reward customers for referring visitors and sign-ups. Activity is recorded in a dedicated referrals ledger with a customer history view and an admin [Referral Report](/terawallet/admin-guide/transactions#referral-report).
 - **Sell Content**: Let users sell digital content and receive the proceeds into their wallet.
 
 <Tip>

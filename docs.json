@@ -34,113 +34,122 @@
     }
   ],
   "navigation": {
-    "tabs": [
+    "products": [
       {
-        "tab": "Getting Started",
-        "groups": [
+        "product": "TeraWallet",
+        "icon": "wallet",
+        "description": "Free digital wallet plugin for WooCommerce",
+        "tabs": [
           {
-            "group": "Introduction",
-            "pages": [
-              "index",
-              "getting-started/key-features"
+            "tab": "Guides",
+            "groups": [
+              {
+                "group": "Get Started",
+                "pages": [
+                  "terawallet/index",
+                  "terawallet/getting-started/key-features",
+                  "terawallet/getting-started/installation",
+                  "terawallet/getting-started/configuration",
+                  "terawallet/getting-started/pro"
+                ]
+              },
+              {
+                "group": "User Guide",
+                "pages": [
+                  "terawallet/user-guide/wallet-dashboard",
+                  "terawallet/user-guide/partial-payments"
+                ]
+              },
+              {
+                "group": "Admin Guide",
+                "pages": [
+                  "terawallet/admin-guide/settings",
+                  "terawallet/admin-guide/transactions"
+                ]
+              },
+              {
+                "group": "Cashback System",
+                "pages": [
+                  "terawallet/cashback/rules-logic"
+                ]
+              }
             ]
           },
           {
-            "group": "Setup",
-            "pages": [
-              "getting-started/installation",
-              "getting-started/configuration"
+            "tab": "Developers",
+            "groups": [
+              {
+                "group": "Developer Guide",
+                "pages": [
+                  "terawallet/developer-guide/architecture",
+                  "terawallet/developer-guide/hooks",
+                  "terawallet/developer-guide/rest-api"
+                ]
+              }
             ]
           },
           {
-            "group": "Plans",
-            "pages": [
-              "getting-started/pro"
+            "tab": "Help",
+            "groups": [
+              {
+                "group": "FAQ & Troubleshooting",
+                "pages": [
+                  "terawallet/faq/troubleshooting"
+                ]
+              },
+              {
+                "group": "Releases",
+                "pages": [
+                  "terawallet/releases/changelog"
+                ]
+              }
             ]
           }
         ]
       },
       {
-        "tab": "Guides",
-        "groups": [
+        "product": "TeraWallet Pro",
+        "icon": "crown",
+        "description": "Withdrawals, expiry, coupons, importer and AffiliateWP",
+        "tabs": [
           {
-            "group": "User Guide",
-            "pages": [
-              "user-guide/wallet-dashboard",
-              "user-guide/partial-payments"
+            "tab": "Guides",
+            "groups": [
+              {
+                "group": "Get Started",
+                "pages": [
+                  "terawallet-pro/index",
+                  "terawallet-pro/installation"
+                ]
+              },
+              {
+                "group": "Features",
+                "pages": [
+                  "terawallet-pro/withdrawal",
+                  "terawallet-pro/wallet-expiry",
+                  "terawallet-pro/wallet-coupons",
+                  "terawallet-pro/importer",
+                  "terawallet-pro/affiliatewp"
+                ]
+              },
+              {
+                "group": "Payout Gateways",
+                "pages": [
+                  "terawallet-pro/paypal-withdrawal"
+                ]
+              }
             ]
           },
           {
-            "group": "Admin Guide",
-            "pages": [
-              "admin-guide/settings",
-              "admin-guide/transactions"
-            ]
-          },
-          {
-            "group": "Cashback System",
-            "pages": [
-              "cashback/rules-logic"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Developers",
-        "groups": [
-          {
-            "group": "Developer Guide",
-            "pages": [
-              "developer-guide/architecture",
-              "developer-guide/hooks",
-              "developer-guide/rest-api"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "TeraWallet Pro",
-        "groups": [
-          {
-            "group": "Getting Started",
-            "pages": [
-              "pro/index",
-              "pro/installation"
-            ]
-          },
-          {
-            "group": "Features",
-            "pages": [
-              "pro/withdrawal",
-              "pro/paypal-withdrawal",
-              "pro/wallet-expiry",
-              "pro/wallet-coupons",
-              "pro/importer",
-              "pro/affiliatewp"
-            ]
-          },
-          {
-            "group": "Reference",
-            "pages": [
-              "pro/settings",
-              "pro/hooks"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Help",
-        "groups": [
-          {
-            "group": "FAQ & Troubleshooting",
-            "pages": [
-              "faq/troubleshooting"
-            ]
-          },
-          {
-            "group": "Releases",
-            "pages": [
-              "releases/changelog"
+            "tab": "Reference",
+            "groups": [
+              {
+                "group": "Reference",
+                "pages": [
+                  "terawallet-pro/settings",
+                  "terawallet-pro/hooks"
+                ]
+              }
             ]
           }
         ]
@@ -151,5 +160,43 @@
     "socials": {
       "github": "https://github.com/malsubrata/woo-wallet"
     }
-  }
+  },
+  "redirects": [
+    {
+      "source": "/getting-started/:slug*",
+      "destination": "/terawallet/getting-started/:slug*"
+    },
+    {
+      "source": "/user-guide/:slug*",
+      "destination": "/terawallet/user-guide/:slug*"
+    },
+    {
+      "source": "/admin-guide/:slug*",
+      "destination": "/terawallet/admin-guide/:slug*"
+    },
+    {
+      "source": "/cashback/:slug*",
+      "destination": "/terawallet/cashback/:slug*"
+    },
+    {
+      "source": "/developer-guide/:slug*",
+      "destination": "/terawallet/developer-guide/:slug*"
+    },
+    {
+      "source": "/faq/:slug*",
+      "destination": "/terawallet/faq/:slug*"
+    },
+    {
+      "source": "/releases/:slug*",
+      "destination": "/terawallet/releases/:slug*"
+    },
+    {
+      "source": "/pro",
+      "destination": "/terawallet-pro/index"
+    },
+    {
+      "source": "/pro/:slug*",
+      "destination": "/terawallet-pro/:slug*"
+    }
+  ]
 }
