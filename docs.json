@@ -4,8 +4,8 @@
   "name": "TeraWallet Documentation",
   "description": "Official documentation for TeraWallet — the leading digital wallet plugin for WooCommerce. Top-ups, partial payments, cashback, transfers, multi-currency and a full REST API.",
   "logo": {
-    "light": "/logo/logo.png",
-    "dark": "/logo/logo.png"
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
   },
   "favicon": "/favicon.ico",
   "colors": {
